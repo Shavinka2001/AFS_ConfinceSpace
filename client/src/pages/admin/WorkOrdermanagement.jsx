@@ -126,10 +126,9 @@ const WorkOrderManagementPage = () => {
   };
 
   const handleEdit = (order) => {
-    // Do nothing or show a message if needed
-    // setCurrentOrder(order);
-    // setIsEdit(true);
-    // setShowModal(true);
+    setCurrentOrder(order);
+    setIsEdit(true);
+    setShowModal(true);
   };
   // Function to show delete confirmation modal
   const handleDelete = (id) => {
@@ -249,9 +248,10 @@ const WorkOrderManagementPage = () => {
               <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-gray-900"></div>
             </div>
           ) : (
-            <div className="overflow-x-auto">              <WorkOrderTable 
+            <div className="overflow-x-auto">
+              <WorkOrderTable 
                 orders={orders} 
-                onEdit={undefined} // Disable edit for admin
+                onEdit={handleEdit} // Enable edit for technician/user side
                 onDelete={handleDelete}
                 searchParams={search}
               />
@@ -267,7 +267,7 @@ const WorkOrderManagementPage = () => {
           setShowModal(false);
         }}
         order={currentOrder}
-        isEdit={false} // Always false for admin
+        isEdit={isEdit} // Pass correct edit state
       />
       
       {/* Delete Confirmation Modal */}
