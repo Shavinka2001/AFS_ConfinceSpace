@@ -563,17 +563,24 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
                   required 
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all" 
                 />
-              </div>              <div>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Technician *</label>
                 <input 
                   type="text" 
                   name="surveyors" 
-                  value={formData.technician || `${JSON.parse(localStorage.getItem("User") || '{"firstname":"", "lastname":""}').firstname} ${JSON.parse(localStorage.getItem("User") || '{"firstname":"", "lastname":""}').lastname}`} 
+                  value={
+                    // Show saved surveyors (comma separated) if editing, else show current user
+                    isEdit && Array.isArray(formData.surveyors) && formData.surveyors.length > 0
+                      ? formData.surveyors.join(", ")
+                      : `${JSON.parse(localStorage.getItem("User") || '{"firstname":"", "lastname":""}').firstname} ${JSON.parse(localStorage.getItem("User") || '{"firstname":"", "lastname":""}').lastname}`
+                  }
                   readOnly
                   required 
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-transparent transition-all cursor-not-allowed" 
                 />
-              </div>              <div>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Space Name/ID *</label>
                 {isLoadingLocations ? (
                   <div className="flex items-center">
@@ -614,7 +621,8 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all" 
                   />
                 )}
-              </div>              <div>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Building *</label>
                 {assignedLocations.length > 0 && selectedLocation ? (
                   <>
