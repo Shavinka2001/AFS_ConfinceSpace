@@ -643,7 +643,13 @@ export default function Dashboard() {
       // Add form header
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
-      doc.text("Form No: CS-" + order._id?.slice(-6) || 'N/A', 14, 25);
+      // Add uniqueId to Form No if available
+      doc.text(
+        "Form No: CS-" +
+        (order.uniqueId ? order.uniqueId : (order._id?.slice(-6) || 'N/A')),
+        14,
+        25
+      );
       doc.text("Date: " + order.dateOfSurvey?.slice(0, 10) || 'N/A', 14, 30);
       doc.text("Surveyors: " + order.surveyors?.join(", ") || 'N/A', 14, 35);
 
