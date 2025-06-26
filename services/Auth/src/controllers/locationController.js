@@ -151,6 +151,13 @@ exports.deleteLocation = async (req, res) => {
       });
     }
     
+    // Remove this location from all users' assignedLocations arrays
+    await User.updateMany(
+      { assignedLocations: locationId },
+      { $pull: { assignedLocations: locationId } }
+    );
+
+    // Optionally, you could also clear assignedTechnicians from the location (not strictly needed since location is deleted)
     await Location.findByIdAndDelete(locationId);
     
     res.json({
