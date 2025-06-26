@@ -3,9 +3,47 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from 'react-toastify';
 
+const SORT_OPTIONS = [
+  { value: "date_desc", label: "Date (Newest First)" },
+  { value: "date_asc", label: "Date (Oldest First)" },
+  { value: "name_asc", label: "Space Name (A-Z)" },
+  { value: "name_desc", label: "Space Name (Z-A)" },
+  { value: "building_asc", label: "Building (A-Z)" },
+  { value: "building_desc", label: "Building (Z-A)" },
+];
 
 const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [sortBy, setSortBy] = useState("date_desc");
+
+  // Sorting logic
+  const getSortedOrders = () => {
+    if (!orders) return [];
+    const sorted = [...orders];
+    switch (sortBy) {
+      case "date_asc":
+        sorted.sort((a, b) => (a.dateOfSurvey || "").localeCompare(b.dateOfSurvey || ""));
+        break;
+      case "date_desc":
+        sorted.sort((a, b) => (b.dateOfSurvey || "").localeCompare(a.dateOfSurvey || ""));
+        break;
+      case "name_asc":
+        sorted.sort((a, b) => (a.confinedSpaceNameOrId || "").localeCompare(b.confinedSpaceNameOrId || ""));
+        break;
+      case "name_desc":
+        sorted.sort((a, b) => (b.confinedSpaceNameOrId || "").localeCompare(a.confinedSpaceNameOrId || ""));
+        break;
+      case "building_asc":
+        sorted.sort((a, b) => (a.building || "").localeCompare(b.building || ""));
+        break;
+      case "building_desc":
+        sorted.sort((a, b) => (b.building || "").localeCompare(a.building || ""));
+        break;
+      default:
+        break;
+    }
+    return sorted;
+  };
 
   // Function to determine if this row should be highlighted based on search params
   const isHighlighted = (order) => {
@@ -355,8 +393,27 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
     );
   };
   
+  // --- Sorting UI ---
   return (
     <>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 mr-2 mb-4 gap-2">
+        <h2 className="text-xl font-bold text-gray-900">Confined Space Work Orders</h2>
+        <div className="flex items-center gap-2">
+          <label htmlFor="sort-orders" className="text-sm text-gray-700 font-medium mr-1">
+            Sort by:
+          </label>
+          <select
+            id="sort-orders"
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+          >
+            {SORT_OPTIONS.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -370,7 +427,7 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {orders.map(order => (
+              {getSortedOrders().map(order => (
                 <tr key={order._id} className={`hover:bg-gray-50 transition-colors duration-200 ${isHighlighted(order) ? 'bg-yellow-50' : ''}`}>                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{searchParams?.id ? 
                         highlightMatch(order.uniqueId || order._id?.slice(-4).padStart(4, '0'), searchParams.id) : 
