@@ -109,7 +109,12 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
             <LocationIcon className="h-4 w-4 text-gray-700" />
             <div>
               <h3 className="text-sm font-bold text-gray-900 leading-tight">{location.name}</h3>
-              <p className="text-xs text-gray-600 truncate max-w-[180px]">{location.address}</p>
+              <p className="text-xs text-gray-600 truncate max-w-[180px]">
+                {/* Show saved address/description from work order if location is deleted */}
+                {location.isDeleted
+                  ? (orders[0]?.locationDescription || location.address)
+                  : location.address}
+              </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -473,29 +478,33 @@ export default function Dashboard() {
         
         // Then add orders to their respective locations
         orderList.forEach(order => {
-          // Try to match order to location by name or address
-          const matchedLocation = locationList.find(location => 
+          // Try to match order to location by _id, name, or address
+          let matchedLocation = locationList.find(location => 
+            location._id === order.locationId || // If you store locationId in order
             location.name === order.confinedSpaceNameOrId ||
             location.name === order.building ||
             location.address === order.building
-          )
-          
+          );
+
           if (matchedLocation) {
             // If we found a match, add to that location
             ordersByLocation[matchedLocation._id].orders.push(order)
           } else {
-            // If no match, create a "Unknown Location" category
-            if (!ordersByLocation['unknown']) {
-              ordersByLocation['unknown'] = {
+            // If no match, create a "virtual" location container based on order fields
+            // Use a unique key based on building+name+address to avoid mixing
+            const virtualKey = `deleted-${order.building || ''}-${order.confinedSpaceNameOrId || ''}`.replace(/\s+/g, '-');
+            if (!ordersByLocation[virtualKey]) {
+              ordersByLocation[virtualKey] = {
                 location: { 
-                  _id: 'unknown',
-                  name: 'Other Locations', 
-                  address: 'Unspecified location' 
+                  _id: virtualKey,
+                  name: order.building || order.confinedSpaceNameOrId || "Deleted Location",
+                  address: order.locationDescription || "Deleted or missing location",
+                  isDeleted: true
                 },
                 orders: []
               }
             }
-            ordersByLocation['unknown'].orders.push(order)
+            ordersByLocation[virtualKey].orders.push(order)
           }
         })
         
