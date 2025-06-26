@@ -61,6 +61,11 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
             order.confinedSpaceNameOrId.toLowerCase().includes(lowerValue)) {
           return true;
         }
+        // Also match deleted location's saved name
+        if (key === 'confinedSpaceNameOrId' && order.location && order.location.isDeleted &&
+            order.location.confinedSpaceNameOrId && order.location.confinedSpaceNameOrId.toLowerCase().includes(lowerValue)) {
+          return true;
+        }
         
         if (key === 'building' && order.building && 
             order.building.toLowerCase().includes(lowerValue)) {
