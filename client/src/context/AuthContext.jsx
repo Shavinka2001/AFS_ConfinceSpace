@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
     };
   }, [navigate]);
   // Add isAdmin helper function
-  const isAdmin = user?.isAdmin || user?.userType === 'admin';
+  const isAdmin = !!(user?.isAdmin || user?.userType === 'admin');
   
   const value = {
     isAuthenticated,
