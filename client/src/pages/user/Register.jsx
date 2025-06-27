@@ -56,7 +56,7 @@ const Register = () => {
       }
 
       // Only allow digits after +1, max 10 digits
-      let digits = phoneValue.slice(2).replace(/\D/g, "").slice(0, 9);
+      let digits = phoneValue.slice(2).replace(/\D/g, "").slice(0, 10);
       phoneValue = "+1" + digits;
 
       setForm({ ...form, [name]: phoneValue });
