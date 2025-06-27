@@ -31,9 +31,36 @@ exports.createOrder = async (req, res) => {
         }
       }
     }
+   
+
+    // --- Unique ID logic ---
+    let uniqueId = req.body.uniqueId;
+    if (!uniqueId) {
+      // Find the smallest unused uniqueId (gapless)
+      const allOrders = await Order.find({}, 'uniqueId').lean();
+      const usedIds = new Set(
+        allOrders
+          .map(o => o.uniqueId)
+          .filter(Boolean)
+          .map(id => parseInt(id, 10))
+          .filter(n => !isNaN(n))
+      );
+      let nextId = 1;
+      while (usedIds.has(nextId)) nextId++;
+      uniqueId = String(nextId).padStart(4, '0');
+    } else {
+      // Check if uniqueId already exists
+      const exists = await Order.findOne({ uniqueId });
+      if (exists) {
+        return res.status(400).json({ error: 'uniqueId already exists. Please use a different ID.' });
+      }
+    }
+    // --- End Unique ID logic ---
+
     allPictures = [...allPictures, ...pictures].filter(Boolean).slice(0, 3); // Limit to 3 images
     const orderData = { 
       ...req.body,
+      uniqueId, // <-- always set uniqueId
       pictures: allPictures
     };
 
@@ -41,6 +68,10 @@ exports.createOrder = async (req, res) => {
     const savedOrder = await order.save();
     res.status(201).json(savedOrder);
   } catch (err) {
+    // Handle duplicate key error for uniqueId
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.uniqueId) {
+      return res.status(400).json({ error: 'uniqueId already exists. Please use a different ID.' });
+    }
     res.status(400).json({ error: err.message });
   }
 };
