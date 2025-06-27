@@ -175,57 +175,56 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
               {/* Scrollable container for all orders */}            <div className="flex-1 overflow-y-auto h-[180px] overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300">
               <table className="min-w-full text-xs border-collapse table-fixed">
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {/* Display filtered orders */}                  {filteredOrders.length > 0 ? (                    filteredOrders.map((order) => {
+                  {/* Display filtered orders */}                  {filteredOrders.length > 0 ? (
+                    filteredOrders.map((order) => {
                       // Find the original index of this order in the unfiltered array
                       const originalIndex = orders.findIndex(o => o._id === order._id);
                       const sequenceNumber = originalIndex + 1;
-                      
                       return (
-                      <tr 
-                        key={order._id || originalIndex} 
-                        className={`hover:bg-gray-50 transition-colors h-[46px] ${
-                          searchTerm && String(sequenceNumber) === searchTerm
-                            ? 'bg-blue-50'
-                            : ''
-                        }`}
-                      >
-                        
-                        <td className="scope='col' px-2 py-2 whitespace-nowrap text-xs text-gray-500 w-[30%]">
-                          <div className="flex items-center">
-                            <span className="font-mono text-gray-900">#{sequenceNumber}</span>
-                          </div>
-                        </td>
-                        <td className="scope='col' px-2 py-2 whitespace-nowrap text-xs text-gray-500 w-[30%]">
-                          <div className="flex items-center">
-                            <CalendarIcon className="mr-1 h-3 w-3 flex-shrink-0" />
-                            <span className="truncate max-w-[80px]">{order.dateOfSurvey?.slice(0, 10) || "No date"}</span>
-                          </div>
-                        </td>
-                        <td className="px-2 py-2 whitespace-nowrap text-right">
-                          <div className="flex justify-end space-x-1">
-                            <button 
-                              onClick={() => onViewOrder(order)} 
-                              className="p-1 rounded text-blue-600 hover:bg-blue-50 transition-colors" 
-                              title="View Order"
-                            >
-                              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                            </button>
-                            
-                            <button 
-                              onClick={() => onDeleteOrder(order._id)} 
-                              className="p-1 rounded text-red-600 hover:bg-red-50 transition-colors"
-                              title="Delete Order"
-                            >
-                              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          </div>                      
-                        </td>                      </tr>
-                    )})
+                        <tr
+                          key={order._id || originalIndex}
+                          className={`hover:bg-gray-50 transition-colors h-[46px] ${
+                            searchTerm && String(sequenceNumber) === searchTerm
+                              ? 'bg-blue-50'
+                              : ''
+                          }`}
+                        ><td className="scope='col' px-2 py-2 whitespace-nowrap text-xs text-gray-500 w-[30%]">
+                            <div className="flex items-center">
+                              <span className="font-mono text-gray-900">#{sequenceNumber}</span>
+                            </div>
+                          </td>
+                          <td className="scope='col' px-2 py-2 whitespace-nowrap text-xs text-gray-500 w-[30%]">
+                            <div className="flex items-center">
+                              <CalendarIcon className="mr-1 h-3 w-3 flex-shrink-0" />
+                              <span className="truncate max-w-[80px]">{order.dateOfSurvey?.slice(0, 10) || "No date"}</span>
+                            </div>
+                          </td>
+                          <td className="px-2 py-2 whitespace-nowrap text-right">
+                            <div className="flex justify-end space-x-1">
+                              <button
+                                onClick={() => onViewOrder(order)}
+                                className="p-1 rounded text-blue-600 hover:bg-blue-50 transition-colors"
+                                title="View Order"
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => onDeleteOrder(order._id)}
+                                className="p-1 rounded text-red-600 hover:bg-red-50 transition-colors"
+                                title="Delete Order"
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
                   ) : (
                     <tr>
                       <td colSpan="4" className="px-2 py-4 text-center text-xs text-gray-500">
@@ -335,7 +334,7 @@ const ClipboardIcon = ({ className = "w-6 h-6" }) => (
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}
-      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2v3m-6 4h3m-3 4h3m-6-4h.01M9 16h.01"
     />
   </svg>
 )
