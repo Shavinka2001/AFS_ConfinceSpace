@@ -692,8 +692,8 @@ export default function Dashboard() {
       currentY += 5;
       
       const spaceClassification = [
-        ['Is this a Confined Space:', order.confinedSpace ? '☒ Yes' : '☐ No'],
-        ['Permit Required:', order.permitRequired ? '☒ Yes' : '☐ No'],
+        ['Is this a Confined Space:', order.confinedSpace ? 'Yes' : 'No'],
+        ['Permit Required:', order.permitRequired ? 'Yes' : 'No'],
         ['Entry Requirements:', order.entryRequirements || 'N/A']
       ];
 
@@ -718,13 +718,13 @@ export default function Dashboard() {
       currentY += 5;
       
       const hazardsAssessment = [
-        ['Atmospheric Hazard:', order.atmosphericHazard ? '☒ Yes' : '☐ No'],
+        ['Atmospheric Hazard:', order.atmosphericHazard ? 'Yes' : 'No'],
         ['Description:', order.atmosphericHazardDescription || 'N/A'],
-        ['Engulfment Hazard:', order.engulfmentHazard ? '☒ Yes' : '☐ No'],
+        ['Engulfment Hazard:', order.engulfmentHazard ? 'Yes' : 'No'],
         ['Description:', order.engulfmentHazardDescription || 'N/A'],
-        ['Configuration Hazard:', order.configurationHazard ? '☒ Yes' : '☐ No'],
+        ['Configuration Hazard:', order.configurationHazard ? 'Yes' : 'No'],
         ['Description:', order.configurationHazardDescription || 'N/A'],
-        ['Other Recognized Hazards:', order.otherRecognizedHazards ? '☒ Yes' : '☐ No'],
+        ['Other Recognized Hazards:', order.otherRecognizedHazards ? 'Yes' : 'No'],
         ['Description:', order.otherHazardsDescription || 'N/A']
       ];
 
@@ -749,11 +749,11 @@ export default function Dashboard() {
       currentY += 5;
       
       const safetyMeasures = [
-        ['PPE Required:', order.ppeRequired ? '☒ Yes' : '☐ No'],
+        ['PPE Required:', order.ppeRequired ? 'Yes' : 'No'],
         ['PPE List:', order.ppeList || 'N/A'],
-        ['Forced Air Ventilation:', order.forcedAirVentilationSufficient ? '☒ Sufficient' : '☐ Insufficient'],
-        ['Dedicated Air Monitor:', order.dedicatedContinuousAirMonitor ? '☒ Yes' : '☐ No'],
-        ['Warning Sign Posted:', order.warningSignPosted ? '☒ Yes' : '☐ No'],
+        ['Forced Air Ventilation:', order.forcedAirVentilationSufficient ? 'Sufficient' : 'Insufficient'],
+        ['Dedicated Air Monitor:', order.dedicatedContinuousAirMonitor ? 'Yes' : 'No'],
+        ['Warning Sign Posted:', order.warningSignPosted ? 'Yes' : 'No'],
         ['Number of Entry Points:', order.numberOfEntryPoints || 'N/A']
       ];
 
@@ -778,9 +778,9 @@ export default function Dashboard() {
       currentY += 5;
       
       const additionalInfo = [
-        ['Other People Working Near Space:', order.otherPeopleWorkingNearSpace ? '☒ Yes' : '☐ No'],
-        ['Can Others See into Space:', order.canOthersSeeIntoSpace ? '☒ Yes' : '☐ No'],
-        ['Do Contractors Enter Space:', order.contractorsEnterSpace ? '☒ Yes' : '☐ No'],
+        ['Other People Working Near Space:', order.otherPeopleWorkingNearSpace ? 'Yes' : 'No'],
+        ['Can Others See into Space:', order.canOthersSeeIntoSpace ? 'Yes' : 'No'],
+        ['Do Contractors Enter Space:', order.contractorsEnterSpace ? 'Yes' : 'No'],
         ['Notes:', order.notes || 'N/A']
       ];
 
@@ -816,7 +816,8 @@ export default function Dashboard() {
         // Track the promises for image loading
         const imagePromises = [];
         const imgInfos = [];
-          // Prepare image loading for all images        for (let i = 0; i < orderImages.length; i++) {
+        // Prepare image loading for all images
+        for (let i = 0; i < orderImages.length; i++) {
           const imgPath = orderImages[i];
           // Handle different image formats: URL string, base64 data, or relative path
           const imageUrl = typeof imgPath === 'string' ? 
@@ -837,9 +838,9 @@ export default function Dashboard() {
               // Set canvas dimensions proportional to image
               let imgWidth = img.width;
               let imgHeight = img.height;
-              const maxWidth = 170; // Increased from 170
-              const maxHeight = 120; // Increased from 120
-              // Resize image to fit within maximum dimensions while maintaining aspect ratio
+              // Smaller size for PDF images
+              const maxWidth = 120; // reduced from 170
+              const maxHeight = 80; // reduced from 120
               if (imgWidth > maxWidth || imgHeight > maxHeight) {
                 const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
                 imgWidth *= ratio;
@@ -850,14 +851,10 @@ export default function Dashboard() {
               canvas.height = imgHeight * 3;
               canvas.style.width = imgWidth + "px";
               canvas.style.height = imgHeight + "px";
-              // Scale context for high-res rendering
               ctx.scale(3, 3);
-              // Improve image quality with better rendering
               ctx.imageSmoothingEnabled = true;
               ctx.imageSmoothingQuality = "high";
-              // Draw image on canvas with better quality
               ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
-              // Get image data as base64 with highest quality PNG
               const dataUrl = canvas.toDataURL('image/png', 1.0);
               imgInfos.push({
                 dataUrl,
@@ -925,6 +922,8 @@ export default function Dashboard() {
           doc.text("No images available", marginLeft, currentY + 10);
           currentY += 20;
         }
+      } // <-- Move this closing brace here to properly close the if block
+
       // Add signature section
       doc.setFontSize(12);
       doc.setFont(undefined, 'bold');

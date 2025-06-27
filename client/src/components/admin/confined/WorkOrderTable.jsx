@@ -136,8 +136,8 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
       currentY += 5;
       
       const spaceClassification = [
-        ['Is this a Confined Space:', order.confinedSpace ? '☒ Yes' : '☐ No'],
-        ['Permit Required:', order.permitRequired ? '☒ Yes' : '☐ No'],
+        ['Is this a Confined Space:', order.confinedSpace ? 'Yes' : 'No'],
+        ['Permit Required:', order.permitRequired ? 'Yes' : 'No'],
         ['Entry Requirements:', order.entryRequirements || 'N/A']
       ];
 
@@ -162,13 +162,13 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
       currentY += 5;
       
       const hazardsAssessment = [
-        ['Atmospheric Hazard:', order.atmosphericHazard ? '☒ Yes' : '☐ No'],
+        ['Atmospheric Hazard:', order.atmosphericHazard ? 'Yes' : 'No'],
         ['Description:', order.atmosphericHazardDescription || 'N/A'],
-        ['Engulfment Hazard:', order.engulfmentHazard ? '☒ Yes' : '☐ No'],
+        ['Engulfment Hazard:', order.engulfmentHazard ? 'Yes' : 'No'],
         ['Description:', order.engulfmentHazardDescription || 'N/A'],
-        ['Configuration Hazard:', order.configurationHazard ? '☒ Yes' : '☐ No'],
+        ['Configuration Hazard:', order.configurationHazard ? 'Yes' : 'No'],
         ['Description:', order.configurationHazardDescription || 'N/A'],
-        ['Other Recognized Hazards:', order.otherRecognizedHazards ? '☒ Yes' : '☐ No'],
+        ['Other Recognized Hazards:', order.otherRecognizedHazards ? 'Yes' : 'No'],
         ['Description:', order.otherHazardsDescription || 'N/A']
       ];
 
@@ -193,11 +193,11 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
       currentY += 5;
       
       const safetyMeasures = [
-        ['PPE Required:', order.ppeRequired ? '☒ Yes' : '☐ No'],
+        ['PPE Required:', order.ppeRequired ? 'Yes' : 'No'],
         ['PPE List:', order.ppeList || 'N/A'],
-        ['Forced Air Ventilation:', order.forcedAirVentilationSufficient ? '☒ Sufficient' : '☐ Insufficient'],
-        ['Dedicated Air Monitor:', order.dedicatedContinuousAirMonitor ? '☒ Yes' : '☐ No'],
-        ['Warning Sign Posted:', order.warningSignPosted ? '☒ Yes' : '☐ No'],
+        ['Forced Air Ventilation:', order.forcedAirVentilationSufficient ? 'Sufficient' : 'Insufficient'],
+        ['Dedicated Air Monitor:', order.dedicatedContinuousAirMonitor ? 'Yes' : 'No'],
+        ['Warning Sign Posted:', order.warningSignPosted ? 'Yes' : 'No'],
         ['Number of Entry Points:', order.numberOfEntryPoints || 'N/A']
       ];
 
@@ -222,9 +222,9 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
       currentY += 5;
       
       const additionalInfo = [
-        ['Other People Working Near Space:', order.otherPeopleWorkingNearSpace ? '☒ Yes' : '☐ No'],
-        ['Can Others See into Space:', order.canOthersSeeIntoSpace ? '☒ Yes' : '☐ No'],
-        ['Do Contractors Enter Space:', order.contractorsEnterSpace ? '☒ Yes' : '☐ No'],
+        ['Other People Working Near Space:', order.otherPeopleWorkingNearSpace ? 'Yes' : 'No'],
+        ['Can Others See into Space:', order.canOthersSeeIntoSpace ? 'Yes' : 'No'],
+        ['Do Contractors Enter Space:', order.contractorsEnterSpace ? 'Yes' : 'No'],
         ['Notes:', order.notes || 'N/A']
       ];
 
@@ -270,8 +270,9 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
               // High quality canvas
               let imgWidth = img.width;
               let imgHeight = img.height;
-              const maxWidth = 170;
-              const maxHeight = 120;
+              // Smaller size for PDF images
+              const maxWidth = 120; // reduced from 170
+              const maxHeight = 80; // reduced from 120
               if (imgWidth > maxWidth || imgHeight > maxHeight) {
                 const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
                 imgWidth *= ratio;
