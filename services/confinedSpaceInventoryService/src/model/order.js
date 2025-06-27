@@ -5,7 +5,7 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  uniqueId: { type: String },
+  uniqueId: { type: String, unique: true, sparse: true },
   dateOfSurvey: { type: Date, required: true },
   surveyors: { type: [String], required: true },
   confinedSpaceNameOrId: { type: String, required: true },
