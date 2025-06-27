@@ -20,6 +20,11 @@ const WorkOrderManagementPage = () => {
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  // State for delete all confirmation modal
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+  // Add state for confirmation input
+  const [deleteAllConfirmInput, setDeleteAllConfirmInput] = useState("");
 
   // Fetch all orders
   const fetchOrders = async (params = {}) => {
@@ -158,6 +163,25 @@ const WorkOrderManagementPage = () => {
     setOrderToDelete(null);
   };
 
+  // Function to delete all orders
+  const handleDeleteAllOrders = async () => {
+    setIsDeletingAll(true);
+    try {
+      // Delete each order sequentially (or in parallel if you want)
+      for (const order of orders) {
+        await deleteWorkOrder(order._id);
+      }
+      setAlert({ type: "success", message: "All work orders deleted successfully!" });
+      fetchOrders();
+      setShowDeleteAllModal(false);
+    } catch (error) {
+      setAlert({ type: "error", message: "Failed to delete all work orders" });
+    } finally {
+      setIsDeletingAll(false);
+      setDeleteAllConfirmInput(""); // Reset input after action
+    }
+  };
+
   // Download filtered orders as Excel
   const handleDownloadFilteredExcel = () => {
     if (!orders || orders.length === 0) {
@@ -228,16 +252,29 @@ const WorkOrderManagementPage = () => {
               onSearch={handleSearch} 
               onClear={clearSearch}
             />
-            <button
-              onClick={handleDownloadFilteredExcel}
-              className="mt-2 sm:mt-0 text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center bg-gray-50 px-3 py-2 rounded-md border border-gray-300 hover:border-gray-400 shadow-sm hover:shadow transition-all"
-              title="Download filtered work orders as Excel"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-              </svg>
-              Download Filtered
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={handleDownloadFilteredExcel}
+                className="mt-2 sm:mt-0 text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center bg-gray-50 px-3 py-2 rounded-md border border-gray-300 hover:border-gray-400 shadow-sm hover:shadow transition-all"
+                title="Download filtered work orders as Excel"
+              >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Download Filtered
+              </button>
+              <button
+                onClick={() => setShowDeleteAllModal(true)}
+                className="mt-2 sm:mt-0 text-sm font-medium text-red-700 hover:text-white flex items-center bg-red-50 hover:bg-red-600 px-3 py-2 rounded-md border border-red-200 hover:border-red-600 shadow-sm hover:shadow transition-all"
+                title="Delete all work orders"
+                disabled={orders.length === 0}
+              >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete All
+              </button>
+            </div>
           </div>
         </div>
 
@@ -291,6 +328,51 @@ const WorkOrderManagementPage = () => {
                 disabled={isDeleting} // Disable button while deleting
               >
                 {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete All Confirmation Modal */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-200">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Delete All Work Orders</h3>
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to delete <span className="font-bold">{orders.length}</span> work orders? This action cannot be undone.
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Please type <span className="font-mono bg-gray-100 px-2 py-1 rounded text-red-700">delete all</span> to confirm:
+              </label>
+              <input
+                type="text"
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                value={deleteAllConfirmInput}
+                onChange={e => setDeleteAllConfirmInput(e.target.value)}
+                disabled={isDeletingAll}
+                autoFocus
+                placeholder="Type 'delete all' to confirm"
+              />
+            </div>
+            <div className="flex space-x-4 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteAllModal(false);
+                  setDeleteAllConfirmInput("");
+                }}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
+                disabled={isDeletingAll}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAllOrders}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+                disabled={isDeletingAll || deleteAllConfirmInput.trim().toLowerCase() !== "delete all"}
+              >
+                {isDeletingAll ? "Deleting..." : "Delete All"}
               </button>
             </div>
           </div>
