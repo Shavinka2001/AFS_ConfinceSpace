@@ -31,7 +31,10 @@ const LocationMapView = ({ location, height = '300px' }) => {
   };
 
   return (
-    <div className="rounded-lg overflow-hidden shadow-lg border border-gray-200" style={{ height }}>
+    <div
+      className="rounded-2xl overflow-hidden shadow-lg border border-gray-200"
+      style={{ height, minHeight: height, width: '100%' }}
+    >
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
         center={position}
