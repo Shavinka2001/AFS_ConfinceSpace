@@ -204,9 +204,16 @@ export const searchWorkOrders = async (searchParams) => {
       }
     });
     
+    // Ensure dateOfSurvey is sent as YYYY-MM-DD if present
+    const params = { ...searchParams };
+    if (params.dateOfSurvey) {
+      // Only keep the date part (not time)
+      params.dateOfSurvey = params.dateOfSurvey.slice(0, 10);
+    }
+
     const response = await api.get('/search', {
-      params: cleanParams,
-      headers: authHeader(),
+      params,
+      headers: authHeader()
     });
     return response.data;
   } catch (error) {
@@ -214,4 +221,3 @@ export const searchWorkOrders = async (searchParams) => {
     throw new Error(error.response?.data?.message || 'Failed to search work orders');
   }
 };
-    

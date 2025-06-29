@@ -252,24 +252,24 @@ const WorkOrderManagementPage = () => {
               onSearch={handleSearch} 
               onClear={clearSearch}
             />
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col w-full max-w-xs gap-3 mt-4 sm:mt-0">
               <button
                 onClick={handleDownloadFilteredExcel}
-                className="mt-2 sm:mt-0 text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center bg-gray-50 px-3 py-2 rounded-md border border-gray-300 hover:border-gray-400 shadow-sm hover:shadow transition-all"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-black text-white font-bold text-base shadow-lg hover:bg-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-black"
                 title="Download filtered work orders as Excel"
               >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
                 </svg>
                 Download Filtered
               </button>
               <button
                 onClick={() => setShowDeleteAllModal(true)}
-                className="mt-2 sm:mt-0 text-sm font-medium text-red-700 hover:text-white flex items-center bg-red-50 hover:bg-red-600 px-3 py-2 rounded-md border border-red-200 hover:border-red-600 shadow-sm hover:shadow transition-all"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white text-black font-bold text-base shadow-lg border border-black hover:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-60"
                 title="Delete all work orders"
                 disabled={orders.length === 0}
               >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
                 Delete All
