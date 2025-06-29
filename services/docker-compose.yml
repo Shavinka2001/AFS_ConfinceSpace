@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  service1:
+    build:
+      context: ./api-gateway
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+
+  service2:
+    build:
+      context: ./Auth
+    ports:
+      - "5001:5001"
+    networks:
+      - app-network
+    depends_on:
+      - service1
+
+  service3:
+    build:
+      context: ./confinedSpaceInventoryService
+    ports:
+      - "5002:5002"
+    networks:
+      - app-network
+    depends_on:
+      - api-gateway
+      - Auth
+      - confinedSpaceInventoryService
+
+networks:
+  app-network:
+    driver: bridge
