@@ -9,13 +9,6 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://4.236.138.4:5000', // <-- API Gateway on Azure VM
-        changeOrigin: true,
-        secure: false,
-      }
-    }
   },
   resolve: {
     alias: {

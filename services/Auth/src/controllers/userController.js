@@ -46,6 +46,11 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
+  // Validate request body
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Email and password are required' });
+  }
+
   try {
     // Find the user by email
     const user = await User.findOne({ email });
@@ -71,7 +76,8 @@ exports.login = async (req, res) => {
         success: false, 
         message: 'Invalid email or password' 
       });
-    }    // Import token generator and generate tokens
+    }
+    // Import token generator and generate tokens
     const jwt = require('jsonwebtoken');
     
     // Generate access token
@@ -116,10 +122,11 @@ exports.login = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('Login error:', err.stack || err);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error during authentication' 
+      message: 'Server error during authentication',
+      error: err.message // Expose error message for debugging (remove in production)
     });
   }
 };
