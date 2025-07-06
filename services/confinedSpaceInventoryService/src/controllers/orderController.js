@@ -1,30 +1,75 @@
 const Order = require('../../src/model/order.js');
 const path = require('path');
+const { deleteBlobFromStorage, extractBlobNameFromUrl } = require('../config/azureStorage');
+
+// Helper function to convert Azure blob URLs to local proxy URLs
+const convertAzureUrlsToProxy = (pictures) => {
+  if (!Array.isArray(pictures)) return pictures;
+  
+  return pictures.map(pic => {
+    if (typeof pic === 'string' && pic.includes('afsconfined.blob.core.windows.net')) {
+      const blobName = extractBlobNameFromUrl(pic);
+      return blobName ? `/image/${blobName}` : pic;
+    }
+    return pic;
+  });
+};
+
+// Helper function to convert local proxy URLs back to Azure URLs (for deletion purposes)
+const convertProxyUrlsToAzure = (pictures) => {
+  if (!Array.isArray(pictures)) return pictures;
+  
+  return pictures.map(pic => {
+    if (typeof pic === 'string' && pic.startsWith('/image/')) {
+      const blobName = pic.replace('/image/', '');
+      return `https://afsconfined.blob.core.windows.net/confined-space-images/${blobName}`;
+    }
+    return pic;
+  });
+};
 
 // Create a new order
 exports.createOrder = async (req, res) => {
   try {
-    // Handle file uploads
+    // Handle Azure blob URLs from uploadToAzure middleware
     const pictures = [];
-    if (req.files && req.files.length > 0) {
-      req.files.forEach(file => {
-        // Store the relative path to be accessed via API
-        const imagePath = `/uploads/${file.filename}`;
-        pictures.push(imagePath);
-      });
+    
+    // Get uploaded image URLs from Azure middleware
+    if (req.uploadedImageUrls && req.uploadedImageUrls.length > 0) {
+      pictures.push(...req.uploadedImageUrls);
+    }
+    
+    // Also handle existing pictures from request body (for updates with existing images)
+    if (req.body.pictures) {
+      try {
+        const existingPictures = typeof req.body.pictures === 'string' 
+          ? JSON.parse(req.body.pictures) 
+          : req.body.pictures;
+        
+        if (Array.isArray(existingPictures)) {
+          pictures.push(...existingPictures);
+        }
+      } catch (error) {
+        console.error('Error parsing existing pictures:', error);
+      }
     }
 
-    // Merge file paths with other data
+    // Limit to maximum 5 images
+    const limitedPictures = pictures.slice(0, 5);
+
+    // Merge file URLs with other data
     const orderData = { 
       ...req.body,
-      // Use pictures field from the schema, not images
-      pictures: pictures
+      pictures: limitedPictures
     };
 
     const order = new Order(orderData);
     const savedOrder = await order.save();
+    
+    console.log(`Order created with ${limitedPictures.length} images`);
     res.status(201).json(savedOrder);
   } catch (err) {
+    console.error('Error creating order:', err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -33,7 +78,12 @@ exports.createOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
   try {
     const orders = await Order.find();
-    res.json(orders);
+    // Convert Azure URLs to local proxy URLs for frontend consumption
+    const ordersWithProxyUrls = orders.map(order => ({
+      ...order.toObject(),
+      pictures: convertAzureUrlsToProxy(order.pictures)
+    }));
+    res.json(ordersWithProxyUrls);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -43,7 +93,12 @@ exports.getOrders = async (req, res) => {
 exports.getOrdersByUserId = async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.params.userId });
-    res.json(orders);
+    // Convert Azure URLs to local proxy URLs for frontend consumption
+    const ordersWithProxyUrls = orders.map(order => ({
+      ...order.toObject(),
+      pictures: convertAzureUrlsToProxy(order.pictures)
+    }));
+    res.json(ordersWithProxyUrls);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -53,7 +108,12 @@ exports.getOrdersByUserId = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user.id });
-    res.json(orders);
+    // Convert Azure URLs to local proxy URLs for frontend consumption
+    const ordersWithProxyUrls = orders.map(order => ({
+      ...order.toObject(),
+      pictures: convertAzureUrlsToProxy(order.pictures)
+    }));
+    res.json(ordersWithProxyUrls);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -90,7 +150,12 @@ exports.searchOrders = async (req, res) => {
     }
 
     const orders = await Order.find(query).sort({ dateOfSurvey: -1 });
-    res.json(orders);
+    // Convert Azure URLs to local proxy URLs for frontend consumption
+    const ordersWithProxyUrls = orders.map(order => ({
+      ...order.toObject(),
+      pictures: convertAzureUrlsToProxy(order.pictures)
+    }));
+    res.json(ordersWithProxyUrls);
   } catch (error) {
     res.status(500).json({ message: "Error searching orders", error: error.message });
   }
@@ -101,7 +166,14 @@ exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
+    
+    // Convert Azure URLs to local proxy URLs for frontend consumption
+    const orderWithProxyUrls = {
+      ...order.toObject(),
+      pictures: convertAzureUrlsToProxy(order.pictures)
+    };
+    
+    res.json(orderWithProxyUrls);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -114,59 +186,70 @@ exports.updateOrder = async (req, res) => {
     const existingOrder = await Order.findById(req.params.id);
     if (!existingOrder) return res.status(404).json({ error: 'Order not found' });
     
-    // Process new uploaded files, if any
-    let pictures = existingOrder.pictures || [];
+    // Start with existing pictures
+    let pictures = [...(existingOrder.pictures || [])];
     
-    // Add new pictures if files are uploaded
-    if (req.files && req.files.length > 0) {
-      const newPictures = req.files.map(file => `/uploads/${file.filename}`);
-      
-      // Check if we need to replace or append
-      if (req.body.replaceImages === 'true') {
-        pictures = newPictures;
-      } else {
-        pictures = [...pictures, ...newPictures];
-      }
+    // Add new pictures from Azure uploads if any
+    if (req.uploadedImageUrls && req.uploadedImageUrls.length > 0) {
+      pictures.push(...req.uploadedImageUrls);
     }
     
-    // Handle existing pictures array from request body (might be JSON string)
-    if (req.body.pictures && typeof req.body.pictures === 'string') {
+    // Handle existing pictures from request body (for frontend state management)
+    if (req.body.pictures) {
       try {
-        // If it's a JSON string, parse it
-        const parsedPictures = JSON.parse(req.body.pictures);
-        if (Array.isArray(parsedPictures)) {
-          pictures = parsedPictures;
+        const requestPictures = typeof req.body.pictures === 'string' 
+          ? JSON.parse(req.body.pictures) 
+          : req.body.pictures;
+        
+        if (Array.isArray(requestPictures)) {
+          // If replaceImages is true, replace all pictures with the new ones
+          if (req.body.replaceImages === 'true') {
+            // Delete old Azure blobs that are not in the new list
+            const picturesToDelete = existingOrder.pictures?.filter(
+              oldPic => !requestPictures.includes(oldPic)
+            ) || [];
+            
+            // Delete old blobs from Azure (fire and forget)
+            picturesToDelete.forEach(async (picUrl) => {
+              try {
+                if (picUrl.includes('afsconfined.blob.core.windows.net')) {
+                  await deleteBlobFromStorage(picUrl);
+                }
+              } catch (error) {
+                console.error('Error deleting old blob:', error);
+              }
+            });
+            
+            pictures = requestPictures;
+          } else {
+            // Merge unique pictures
+            const allPictures = [...requestPictures, ...req.uploadedImageUrls || []];
+            pictures = [...new Set(allPictures)]; // Remove duplicates
+          }
         }
-      } catch (e) {
-        // If not JSON, it might be a comma-separated string
-        if (req.body.pictures.includes(',')) {
-          pictures = req.body.pictures.split(',');
-        } else {
-          // Single value
-          pictures = [req.body.pictures];
-        }
+      } catch (error) {
+        console.error('Error parsing pictures from request:', error);
       }
     }
+    
+    // Limit to maximum 5 images
+    pictures = pictures.slice(0, 5);
     
     // Prepare update data
-    const updateData = {
+    const updateData = { 
       ...req.body,
-      pictures
+      pictures: pictures
     };
     
-    // Remove any JSON stringified fields that might cause issues
-    delete updateData.pictures_json;
+    // Remove fields that shouldn't be updated directly
     delete updateData.replaceImages;
     
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
     
-    if (!updatedOrder) return res.status(404).json({ error: 'Order not found' });
+    console.log(`Order updated with ${pictures.length} images`);
     res.json(updatedOrder);
   } catch (err) {
+    console.error('Error updating order:', err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -174,10 +257,30 @@ exports.updateOrder = async (req, res) => {
 // Delete an order by ID
 exports.deleteOrder = async (req, res) => {
   try {
-    const order = await Order.findByIdAndDelete(req.params.id);
+    // Get the order first to access its pictures for cleanup
+    const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json({ message: 'Order deleted successfully' });
+    
+    // Delete associated Azure blobs
+    if (order.pictures && order.pictures.length > 0) {
+      order.pictures.forEach(async (picUrl) => {
+        try {
+          if (picUrl.includes('afsconfined.blob.core.windows.net')) {
+            await deleteBlobFromStorage(picUrl);
+            console.log(`Deleted blob: ${picUrl}`);
+          }
+        } catch (error) {
+          console.error('Error deleting blob during order deletion:', error);
+        }
+      });
+    }
+    
+    // Delete the order from database
+    await Order.findByIdAndDelete(req.params.id);
+    
+    res.json({ message: 'Order and associated images deleted successfully' });
   } catch (err) {
+    console.error('Error deleting order:', err);
     res.status(500).json({ error: err.message });
   }
 };

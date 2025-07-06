@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/order';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -44,16 +44,19 @@ export const createWorkOrder = async (orderData) => {
       }
     });    // Add pictures if they exist (for file uploads, use "images" as field name for multer)
     if (orderData.pictures && orderData.pictures.length > 0) {
-      // Only send up to 3 images
-      const limitedPictures = orderData.pictures.slice(0, 3);
+      // Only send up to 5 images
+      const limitedPictures = orderData.pictures.slice(0, 5);
       const existingImagePaths = [];
+      
       limitedPictures.forEach((image) => {
         if (image instanceof File) {
           formData.append('images', image);
         } else if (typeof image === 'string') {
+          // Handle both local uploads (/uploads/) and Azure blob URLs
           existingImagePaths.push(image);
         }
       });
+      
       // Always send the current list of images to keep
       formData.set('pictures', JSON.stringify(existingImagePaths));
     } else {
@@ -142,19 +145,22 @@ export const updateWorkOrder = async (id, orderData) => {
       }
     });
 
-    // Handle pictures
+    // Handle pictures - increased limit to 5 for Azure storage
     if (orderData.pictures && orderData.pictures.length > 0) {
-      const limitedPictures = orderData.pictures.slice(0, 3);
+      const limitedPictures = orderData.pictures.slice(0, 5);
       const existingImagePaths = [];
+      
       limitedPictures.forEach((image, idx) => {
         // Debug: log type of each image
         console.log(`Picture[${idx}] type:`, typeof image, image instanceof File ? 'File' : '');
         if (image instanceof File) {
           formData.append('images', image);
         } else if (typeof image === 'string') {
+          // Handle both local uploads (/uploads/) and Azure blob URLs
           existingImagePaths.push(image);
         }
       });
+      
       formData.set('pictures', JSON.stringify(existingImagePaths));
     } else {
       formData.set('pictures', JSON.stringify([]));

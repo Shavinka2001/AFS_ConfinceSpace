@@ -132,11 +132,18 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
         .concat(order.images && Array.isArray(order.images) ? order.images : [])
         .filter(Boolean)
         // Map to full URL if needed
-        .map(img =>
-          typeof img === "string" && img.startsWith("/uploads/")
-            ? `${import.meta.env.VITE_FILE_SERVER_URL || "http://localhost:5002"}${img}`
-            : img
-        );
+        .map(img => {
+          if (typeof img === "string") {
+            if (img.startsWith("/uploads/")) {
+              // Legacy local uploads
+              return `${import.meta.env.VITE_FILE_SERVER_URL || "http://localhost:5002"}${img}`;
+            } else if (img.startsWith("/image/")) {
+              // Azure blob proxy URLs
+              return `${import.meta.env.VITE_API_URL || "http://localhost:5002"}${img}`;
+            }
+          }
+          return img;
+        });
       setExistingImages(imgs);
       setPreviewImages([]); // Reset new uploads
       // If editing and we have assigned locations, find the location that matches the work order

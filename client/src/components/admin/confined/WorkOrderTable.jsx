@@ -264,6 +264,7 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
           const imageUrl = typeof imgPath === 'string'
             ? (imgPath.startsWith('data:') ? imgPath
               : imgPath.startsWith('http') ? imgPath
+              : imgPath.startsWith('/image/') ? `http://localhost:5002${imgPath}`
               : `http://localhost:5002${imgPath.startsWith('/') ? '' : '/'}${imgPath}`)
             : imgPath;
           const promise = new Promise((resolve) => {
