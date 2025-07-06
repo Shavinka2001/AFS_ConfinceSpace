@@ -20,7 +20,7 @@ const protect = (req, res, next) => {
 
 // Protected routes
 router.post('/', protect, upload.array('images', 3), orderController.createOrder);
-router.get('/', protect, orderController.getOrders); // Admin: all orders
+router.get('/', orderController.getOrders); // Admin: all orders (now public)
 router.get('/user/:userId', protect, orderController.getOrdersByUserId); // Get orders by specific userId
 router.get('/my-orders', protect, orderController.getMyOrders); // Get current user's orders
 router.get('/search', protect, orderController.searchOrders);

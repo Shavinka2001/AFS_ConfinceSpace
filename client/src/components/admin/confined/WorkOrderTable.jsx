@@ -75,7 +75,9 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
     }
     
     return false;
-  };  const downloadSinglePDF = async (order) => {
+  };
+
+  const downloadSinglePDF = async (order) => {
     try {
       const doc = new jsPDF();
       
@@ -241,6 +243,7 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
           currentY = data.cursor.y + 10;
         }
       });
+
       // Add images section if available
       const orderImages = order.pictures || order.images || [];
       if (orderImages && orderImages.length > 0) {
@@ -371,11 +374,21 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
       console.error('Error generating PDF:', error);
       toast.error('Error generating PDF. Please try again.');
     }
-  };// Handle empty orders array
+  };
+
+  // Handle empty orders array
   if (!orders || orders.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">No work orders found.</p>
+      <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12 text-center">
+        <div className="max-w-md mx-auto">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Work Orders Found</h3>
+          <p className="text-gray-500">No work orders match your current search criteria.</p>
+        </div>
       </div>
     );
   }
@@ -405,118 +418,160 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
     );
   };
   
-  // --- Sorting UI ---
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 mr-2 mb-4 gap-2">
-        <h2 className="text-xl font-bold text-gray-900">Confined Space Work Orders</h2>
-        <div className="flex items-center gap-2">
-          <label htmlFor="sort-orders" className="text-sm text-gray-700 font-medium mr-1">
-            Sort by:
-          </label>
-          <select
-            id="sort-orders"
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
-          >
-            {SORT_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+      {/* Header with sorting */}
+      <div className="bg-white border-b border-gray-100 px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Work Orders</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              {orders.length} order{orders.length !== 1 ? 's' : ''} found
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <label htmlFor="sort-orders" className="text-sm font-medium text-gray-700">
+              Sort by:
+            </label>
+            <select
+              id="sort-orders"
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="border border-gray-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-black focus:border-black transition-all bg-white"
+            >
+              {SORT_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>                <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Order ID</th>
-                <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Survey Date</th>
-                 <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Space Name/ID</th>
-                <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider hidden md:table-cell">Building</th>
-                <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Permit Required</th>
-                <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {getSortedOrders().map(order => (
-                <tr key={order._id} className={`hover:bg-gray-50 transition-colors duration-200 ${isHighlighted(order) ? 'bg-yellow-50' : ''}`}>                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{searchParams?.id ? 
-                        highlightMatch(order.uniqueId || order._id?.slice(-4).padStart(4, '0'), searchParams.id) : 
-                        (order.uniqueId || order._id?.slice(-4).padStart(4, '0'))}</div>
-                  </td>
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{order.dateOfSurvey?.slice(0,10)}</div>
-                  </td>
-               
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-                    <div className="text-sm text-gray-900">{order.confinedSpaceNameOrId}</div>
-                  </td>
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 hidden md:table-cell">
-                    <div className="text-sm text-gray-900">{order.building}</div>
-                  </td>
-              
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-                    <span className={`px-3 sm:px-4 py-1 sm:py-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      order.permitRequired 
-                        ? 'bg-gray-100 text-gray-900' 
-                        : 'bg-gray-50 text-gray-700'
-                    }`}>
-                      {order.permitRequired ? "Required" : "Not Required"}
-                    </span>
-                  </td>
-                  <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2 sm:space-x-4">
-                      <button
-                        onClick={() => downloadSinglePDF(order)}
-                        className="p-1.5 sm:p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-                        title="Download PDF"
-                      >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </button>
-                      {/* Show Edit button only if onEdit is provided (technician side) */}
-                      {onEdit && (
-                        <button
-                          onClick={() => handleEdit(order)}
-                          className="p-1.5 sm:p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-                          title="Edit"
-                        >
-                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDelete(order._id)}
-                        className="p-1.5 sm:p-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                        title="Delete"
-                      >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Order ID
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Survey Date
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Space Name/ID
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider hidden lg:table-cell">
+                Building
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Permit Required
+              </th>
+              <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-50">
+            {getSortedOrders().map(order => (
+              <tr 
+                key={order._id} 
+                className={`hover:bg-gray-50 transition-all duration-200 ${
+                  isHighlighted(order) ? 'bg-yellow-50 border-l-4 border-yellow-400' : ''
+                }`}
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-xs font-bold">
+                        {order.uniqueId ? order.uniqueId.slice(-2) : order._id?.slice(-2)}
+                      </span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {searchParams?.id ? 
+                          highlightMatch(order.uniqueId || order._id?.slice(-4).padStart(4, '0'), searchParams.id) : 
+                          (order.uniqueId || order._id?.slice(-4).padStart(4, '0'))
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900 font-medium">
+                    {order.dateOfSurvey?.slice(0,10)}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900 font-medium">
+                    {order.confinedSpaceNameOrId}
+                  </div>
+                </td>
+                <td className="px-6 py-4 hidden lg:table-cell">
+                  <div className="text-sm text-gray-700">
+                    {order.building}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                    order.permitRequired 
+                      ? 'bg-red-100 text-red-800' 
+                      : 'bg-green-100 text-green-800'
+                  }`}>
+                    {order.permitRequired ? "Required" : "Not Required"}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end items-center space-x-2">
+                    <button
+                      onClick={() => downloadSinglePDF(order)}
+                      className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-xl transition-all duration-200"
+                      title="Download PDF"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                    {/* Show Edit button only if onEdit is provided (technician side) */}
+                    {onEdit && (
+                      <button
+                        onClick={() => handleEdit(order)}
+                        className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-xl transition-all duration-200"
+                        title="Edit"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(order._id)}
+                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200"
+                      title="Delete"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Image Preview Modal */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedImage(null)}
         >
           <div className="max-w-4xl w-full mx-4">
             <img
               src={selectedImage}
               alt="Preview"
-              className="w-full h-auto rounded-xl shadow-2xl"
+              className="w-full h-auto rounded-2xl shadow-2xl"
             />
           </div>
         </div>

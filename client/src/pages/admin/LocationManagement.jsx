@@ -10,7 +10,8 @@ import BuildingManagement from '../../components/admin/location/BuildingManageme
 
 const LocationManagement = () => {
   const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showBuildingModal, setShowBuildingModal] = useState(false);
@@ -59,38 +60,38 @@ const LocationManagement = () => {
   };
 
   // Helper for system-style confirmation using toast
-const confirmDialog = (message) => {
-  return new Promise((resolve) => {
-    const toastId = toast(
-      ({ closeToast }) => (
-        <div>
-          <div className="font-semibold mb-2">{message}</div>
-          <div className="flex gap-2">
-            <button
-              className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-              onClick={() => {
-                resolve(true);
-                toast.dismiss(toastId);
-              }}
-            >
-              Yes
-            </button>
-            <button
-              className="bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300"
-              onClick={() => {
-                resolve(false);
-                toast.dismiss(toastId);
-              }}
-            >
-              No
-            </button>
+  const confirmDialog = (message) => {
+    return new Promise((resolve) => {
+      const toastId = toast(
+        ({ closeToast }) => (
+          <div>
+            <div className="font-semibold mb-2">{message}</div>
+            <div className="flex gap-2">
+              <button
+                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                onClick={() => {
+                  resolve(true);
+                  toast.dismiss(toastId);
+                }}
+              >
+                Yes
+              </button>
+              <button
+                className="bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300"
+                onClick={() => {
+                  resolve(false);
+                  toast.dismiss(toastId);
+                }}
+              >
+                No
+              </button>
+            </div>
           </div>
-        </div>
-      ),
-      { autoClose: false, closeOnClick: false }
-    );
-  });
-};
+        ),
+        { autoClose: false, closeOnClick: false }
+      );
+    });
+  };
 
   const handleDeleteLocation = async (location) => {
     const confirmed = await confirmDialog(`Are you sure you want to delete ${location.name}?`);
@@ -133,6 +134,7 @@ const confirmDialog = (message) => {
       }
     }
   };
+
   const handleAssignTechnicians = (location) => {
     setSelectedLocation(location);
     setShowAssignModal(true);
@@ -144,21 +146,87 @@ const confirmDialog = (message) => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Location Management</h1>
-        <button 
-          onClick={handleAddLocation}
-          className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
-        >
-          Add New Location
-        </button>
-      </div>
-      {/* Change grid to vertical stack: Table on top, Map below */}
-      <div className="flex flex-col gap-6 mb-6">
-        <div>
-          <div className="bg-white shadow rounded-lg p-4">
-            <h2 className="text-xl font-semibold mb-4">Locations</h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        {/* Header Section */}
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 lg:p-12 mb-8">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">Location Management</h1>
+                  <p className="text-lg text-gray-600 mt-2">Manage locations, buildings, and technician assignments</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
+                  <span>Total Locations: {locations.length}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Active: {locations.filter(l => l.isActive !== false).length}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>With Buildings: {locations.filter(l => l.buildings && l.buildings.length > 0).length}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span>With Technicians: {locations.filter(l => l.assignedTechnicians && l.assignedTechnicians.length > 0).length}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleAddLocation}
+                className="px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add New Location
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-8 p-6 bg-white border-l-4 border-red-500 rounded-2xl shadow-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm text-gray-900 font-medium">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="space-y-8">
+          {/* Locations Table Section */}
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div className="bg-white border-b border-gray-100 px-6 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Locations</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {locations.length} location{locations.length !== 1 ? 's' : ''} found
+                  </p>
+                </div>
+              </div>
+            </div>
             <LocationTable 
               locations={locations} 
               loading={loading}
@@ -169,25 +237,41 @@ const confirmDialog = (message) => {
               onManageBuildings={handleManageBuildings}
             />
           </div>
-        </div>
-        <div id="location-map">
-          <div className="bg-white shadow rounded-lg p-4 ">
-            <h2 className="text-xl font-semibold mb-4">Map View</h2>
-            <div className="h-[500px] w-full">
-              <LocationMap 
-                locations={locations}
-                center={mapCenter}
-                zoom={mapZoom}
-                onMarkerClick={handleEditLocation}
-                mapRef={mapRef}
-              />
+
+          {/* Map View Section */}
+          <div id="location-map" className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div className="bg-white border-b border-gray-100 px-6 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Map View</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Interactive map showing all locations
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Click markers to edit locations</span>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="h-[500px] w-full rounded-2xl overflow-hidden border border-gray-100">
+                <LocationMap 
+                  locations={locations}
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  onMarkerClick={handleEditLocation}
+                  mapRef={mapRef}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
       
-      
-      
+      {/* Modals */}
       {showModal && (
         <LocationModal 
           isOpen={showModal}
@@ -198,7 +282,8 @@ const confirmDialog = (message) => {
           mapRef={mapRef}
         />
       )}
-        {showAssignModal && (
+      
+      {showAssignModal && (
         <AssignTechniciansModal
           isOpen={showAssignModal}
           onClose={() => setShowAssignModal(false)}

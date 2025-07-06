@@ -16,90 +16,65 @@ const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Special handling for email field to auto-append domain
     if (name === 'email') {
-      // If user types @ character, auto-complete with full domain
       if (value.endsWith('@') && !value.includes('@agilefacilities.com')) {
         setForm({ ...form, [name]: value + 'agilefacilities.com' });
         return;
       }
-      
-      // If user has deleted part of the domain, keep it consistent
       if (value.includes('@') && !value.endsWith('@')) {
         const username = value.split('@')[0];
         if (username && !value.includes('@agilefacilities.com')) {
-          // Only auto-complete if they're typing the domain portion
           const domainPart = value.split('@')[1] || '';
           if ('agilefacilities.com'.startsWith(domainPart)) {
-            // Allow typing domain, don't auto-complete yet
             setForm({ ...form, [name]: value });
             return;
           } else {
-            // Auto-complete with full domain when they type something else
             setForm({ ...form, [name]: username + '@agilefacilities.com' });
             return;
           }
         }
       }
     }
-    
-    // Special handling for phone field to enforce "+1" and 10 digits
     if (name === "phone") {
       let phoneValue = value;
-
-      // Always start with +1
       if (!phoneValue.startsWith("+1")) {
         phoneValue = "+1" + phoneValue.replace(/^\+?1?/, "");
       }
-
-      // Only allow digits after +1, max 10 digits
       let digits = phoneValue.slice(2).replace(/\D/g, "").slice(0, 10);
       phoneValue = "+1" + digits;
-
       setForm({ ...form, [name]: phoneValue });
       return;
     }
-
-    // Default handling for all other fields
     setForm({ ...form, [name]: value });
   };
-  // Function to validate email format
+
   const validateEmail = (email) => {
     return email.toLowerCase().endsWith('@agilefacilities.com');
   };
-
   const validatePhone = (phone) => {
-    // Must start with +1 and have exactly 10 digits after
     return /^\+1\d{10}$/.test(phone);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
-    
-    // Validate that email ends with @agilefacilities.com
     if (!validateEmail(form.email)) {
       setMessage({ type: "error", text: "Email must end with @agilefacilities.com" });
       return;
     }
-    
-    // Check if passwords match
     if (form.password !== form.confirmPassword) {
       setMessage({ type: "error", text: "Passwords do not match" });
       return;
     }
-
-    // Validate phone number
     if (!validatePhone(form.phone)) {
       setMessage({ type: "error", text: "Phone number must start with +1 and be 10 digits long." });
       return;
     }
-    
     setLoading(true);
-    try {      // Use the correct backend URL for registration
+    try {
       const res = await fetch("http://localhost:5001/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -121,64 +96,47 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-8">
-      <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-2xl">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src="/logo.jpg" alt="Logo" className="h-24 w-24 object-contain" />
-        </div>
-
-        <h2 className="text-3xl font-extrabold text-[#0a2342] text-center mb-4">
-          Create Your Account
-        </h2>
-        <p className="text-center text-sm text-gray-500 mb-6">
-          Please fill in the form to register
-        </p>
-
+    <div className="min-h-screen bg-[#fafbfc] flex items-center justify-center px-4">
+      <div className="w-full max-w-md mx-auto"> {/* Changed max-w-lg to max-w-md */}
+        <img src="/logo.jpg" alt="Logo" className="h-14 w-20 object-contain mb-6 mx-auto" /> {/* Smaller logo and less margin */}
+        <h1 className="text-2xl sm:text-3xl font-bold text-black mb-2 text-center">Create Your Account</h1>
+        <p className="text-gray-600 text-center mb-6">Please fill in the form to register</p>
         {message && (
-          <div
-            className={`mb-4 text-center rounded-lg py-2 px-4 ${
-              message.type === "success"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {message.text}
-          </div>
+          <div className={`mb-3 w-full text-center rounded py-2 px-4 text-base font-medium ${
+            message.type === "success"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}>{message.text}</div>
         )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-4">
+        <form onSubmit={handleSubmit} className="w-full">
+          <div className="flex gap-4 mb-4"> {/* Reduced gap and margin */}
             <div className="w-1/2">
-              <label htmlFor="firstname" className="block text-[#19376d] font-semibold mb-1">
-                First Name
-              </label>
+              <label htmlFor="firstname" className="block text-base font-medium text-black mb-1">First Name</label>
               <input
                 type="text"
                 name="firstname"
                 id="firstname"
                 value={form.firstname}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-[#19376d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19376d] transition"
+                className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white text-base"
                 required
               />
             </div>
             <div className="w-1/2">
-              <label htmlFor="lastname" className="block text-[#19376d] font-semibold mb-1">
-                Last Name
-              </label>
+              <label htmlFor="lastname" className="block text-base font-medium text-black mb-1">Last Name</label>
               <input
                 type="text"
                 name="lastname"
                 id="lastname"
                 value={form.lastname}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-[#19376d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19376d] transition"
+                className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white text-base"
                 required
               />
             </div>
-          </div>          <div>
-            <label htmlFor="email" className="block text-[#19376d] font-semibold mb-1">
+          </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-base font-medium text-black mb-1">
               Email Address <span className="text-sm font-normal text-gray-600">(@agilefacilities.com email required)</span>
             </label>
             <input
@@ -189,16 +147,15 @@ const Register = () => {
               value={form.email}
               onChange={handleChange}
               placeholder="yourname@agilefacilities.com"
-              className={`w-full px-4 py-2 border ${!form.email || validateEmail(form.email) ? 'border-[#19376d]' : 'border-red-500'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19376d] transition`}
+              className={`w-full px-4 py-2 rounded-md border ${!form.email || validateEmail(form.email) ? 'border-gray-300' : 'border-red-500'} focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white text-base`}
               required
             />
             {form.email && !validateEmail(form.email) && (
               <p className="mt-1 text-sm text-red-600">Email must end with @agilefacilities.com</p>
             )}
           </div>
-
-          <div>
-            <label htmlFor="phone" className="block text-[#19376d] font-semibold mb-1">
+          <div className="mb-4">
+            <label htmlFor="phone" className="block text-base font-medium text-black mb-1">
               Phone Number <span className="text-sm font-normal text-gray-600">(Format: +1XXXXXXXXXX)</span>
             </label>
             <input
@@ -207,20 +164,19 @@ const Register = () => {
               id="phone"
               value={form.phone}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border ${!form.phone || validatePhone(form.phone) ? 'border-[#19376d]' : 'border-red-500'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19376d] transition`}
+              className={`w-full px-4 py-2 rounded-md border ${!form.phone || validatePhone(form.phone) ? 'border-gray-300' : 'border-red-500'} focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white text-base`}
               required
-              maxLength={12} // +1 plus 10 digits
+              maxLength={12}
               pattern="\+1\d{10}"
               inputMode="numeric"
             />
             {form.phone && !validatePhone(form.phone) && (
               <p className="mt-1 text-sm text-red-600">Phone number must start with +1 and be 10 digits long.</p>
             )}
-          </div>          <div className="flex gap-4">
+          </div>
+          <div className="flex gap-4 mb-6"> {/* Reduced gap and margin */}
             <div className="w-1/2">
-              <label htmlFor="password" className="block text-[#19376d] font-semibold mb-1">
-                Password
-              </label>
+              <label htmlFor="password" className="block text-base font-medium text-black mb-1">Password</label>
               <div className="relative">
                 <input
                   type={passwordVisible ? "text" : "password"}
@@ -229,30 +185,30 @@ const Register = () => {
                   autoComplete="new-password"
                   value={form.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-[#19376d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19376d] transition"
+                  className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white text-base"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setPasswordVisible(!passwordVisible)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-black"
+                  tabIndex={-1}
                 >
                   {passwordVisible ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#19376d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A6.978 6.978 0 0012 19.5c-3.866 0-7-3.134-7-7s3.134-7 7-7c1.875 0 3.579.75 4.875 1.975M15 12h6m-3-3l3 3l-3 3" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#19376d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A6.978 6.978 0 0012 19.5c-3.866 0-7-3.134-7-7s3.134-7 7-7c1.875 0 3.579.75 4.875 1.975M15 12h6m-3-3l3 3l-3 3" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     </svg>
                   )}
                 </button>
               </div>
             </div>
             <div className="w-1/2">
-              <label htmlFor="confirmPassword" className="block text-[#19376d] font-semibold mb-1">
-                Confirm Password
-              </label>
+              <label htmlFor="confirmPassword" className="block text-base font-medium text-black mb-1">Confirm Password</label>
               <div className="relative">
                 <input
                   type={confirmPasswordVisible ? "text" : "password"}
@@ -261,25 +217,27 @@ const Register = () => {
                   autoComplete="new-password"
                   value={form.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border ${
+                  className={`w-full px-4 py-2 rounded-md border ${
                     !form.confirmPassword || form.password === form.confirmPassword 
-                      ? 'border-[#19376d]' 
+                      ? 'border-gray-300' 
                       : 'border-red-500'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19376d] transition`}
+                  } focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white text-base`}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-black"
+                  tabIndex={-1}
                 >
                   {confirmPasswordVisible ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#19376d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A6.978 6.978 0 0012 19.5c-3.866 0-7-3.134-7-7s3.134-7 7-7c1.875 0 3.579.75 4.875 1.975M15 12h6m-3-3l3 3l-3 3" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#19376d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A6.978 6.978 0 0012 19.5c-3.866 0-7-3.134-7-7s3.134-7 7-7c1.875 0 3.579.75 4.875 1.975M15 12h6m-3-3l3 3l-3 3" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     </svg>
                   )}
                 </button>
@@ -289,25 +247,22 @@ const Register = () => {
               )}
             </div>
           </div>
-
-          {/* Removed User Type label and select */}
-
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 mt-2 bg-[#19376d] text-white font-bold rounded-lg hover:bg-[#0a2342] transition"
+            className="w-full py-3 mt-2 rounded-md font-semibold text-white text-lg transition-all duration-150 bg-black hover:bg-gray-900"
           >
             {loading ? "Registering..." : "Register"}
           </button>
         </form>
-
-        <div className="mt-6 text-center">
-          <span className="text-sm text-[#19376d]">
-            Already have an account?{" "}
-            <a href="/login" className="font-semibold hover:underline">
-              Sign in
-            </a>
-          </span>
+        <div className="w-full text-center mt-6 text-base text-gray-700"> {/* Reduced margin */}
+          Already have an account?{' '}
+          <a href="/login" className="font-semibold text-black hover:underline">Sign in</a>
+        </div>
+        <div className="w-full flex items-center mt-8 mb-2"> {/* Reduced margin */}
+          <div className="flex-1 border-t border-gray-200"></div>
+          <span className="px-4 text-base text-gray-500">Secure Registration</span>
+          <div className="flex-1 border-t border-gray-200"></div>
         </div>
       </div>
     </div>

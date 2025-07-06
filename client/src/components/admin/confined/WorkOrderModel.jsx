@@ -381,15 +381,27 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 shadow-2xl border border-gray-200">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl p-8 max-w-5xl w-full mx-4 shadow-2xl border border-gray-100">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {isEdit ? "Edit" : "Add"} Work Order
-          </h2>
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {isEdit ? "Edit" : "Add"} Work Order
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                {isEdit ? "Update the confined space assessment details" : "Create a new confined space assessment"}
+              </p>
+            </div>
+          </div>
           <button 
             onClick={onClose} 
-            className="text-gray-700 hover:text-gray-900 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200"
             disabled={loading}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,15 +411,25 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
         </div>
 
         {loading && (
-          <div className="flex justify-center items-center py-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="flex justify-center items-center py-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black mx-auto mb-4"></div>
+              <p className="text-gray-600 font-medium">Processing...</p>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8 max-h-[80vh] overflow-y-auto pr-4">
+        <form onSubmit={handleSubmit} className="space-y-8 max-h-[70vh] overflow-y-auto pr-4">
           {/* Image Upload Section */}
-          <div className="bg-gray-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Images</h3>
+          <div className="bg-gray-50 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Images</h3>
+            </div>
             <div className="space-y-4">              <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
@@ -550,22 +572,29 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
           </div>
 
           {/* Section 1: Basic Information */}
-          <div className="bg-gray-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+          <div className="bg-gray-50 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Survey Date *</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Survey Date *</label>
                 <input 
                   type="date" 
                   name="dateOfSurvey" 
                   value={formData.dateOfSurvey} 
                   onChange={handleChange} 
                   required 
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all" 
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all bg-white" 
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Technician *</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Technician *</label>
                 <input 
                   type="text" 
                   name="surveyors" 
@@ -705,8 +734,15 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
           </div>
 
           {/* Section 2: Space Classification */}
-          <div className="bg-gray-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Space Classification</h3>
+          <div className="bg-gray-50 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Space Classification</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Is this a Confined Space? *</label>
@@ -746,8 +782,15 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
           </div>
 
           {/* Section 3: Hazards Assessment */}
-          <div className="bg-gray-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Hazards Assessment</h3>
+          <div className="bg-gray-50 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Hazards Assessment</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Atmospheric Hazard? *</label>
@@ -841,8 +884,15 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
           </div>
 
           {/* Section 4: Safety Measures */}
-          <div className="bg-gray-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Safety Measures</h3>
+          <div className="bg-gray-50 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Safety Measures</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">PPE Required? *</label>
@@ -917,8 +967,15 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
           </div>
 
           {/* Section 5: Additional Information */}
-          <div className="bg-gray-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
+          <div className="bg-gray-50 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Additional Information</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">Other People Working Near Space? *</label>
@@ -968,30 +1025,32 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4 pt-4">
+          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
             <button 
               type="button" 
               onClick={onClose} 
-              className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+              className="px-8 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
               disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="px-6 py-3 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl shadow-lg hover:from-gray-800 hover:to-gray-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-black text-white font-semibold rounded-xl shadow-lg hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               disabled={loading}
             >
               {loading ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   {isEdit ? "Updating..." : "Creating..."}
-                </span>
+                </>
               ) : (
-                isEdit ? "Update" : "Add"
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {isEdit ? "Update Order" : "Create Order"}
+                </>
               )}
             </button>
           </div>

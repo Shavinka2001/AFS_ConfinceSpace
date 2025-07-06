@@ -12,6 +12,7 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
     longitude: null
   });
   const [loading, setLoading] = useState(false);
+
   // Initialize form data when editing an existing location
   useEffect(() => {
     if (location) {
@@ -32,6 +33,7 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
       [name]: value
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -64,159 +66,248 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
   };
 
   if (!isOpen) return null;
-  return (    <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 animate-fadeIn overflow-y-auto pt-4 px-2 pb-10">
-      <div className="bg-white rounded-2xl p-3 sm:p-5 lg:p-6 w-full max-w-2xl mx-auto mt-12 sm:mt-16 md:mt-10 shadow-2xl transform transition-all animate-slideIn border border-gray-100 max-h-[85vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-            {location ? 'Edit Location' : 'Add New Location'}
-          </h2>
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 lg:p-8 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-[#0E1530] rounded-2xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                {location ? 'Edit Location' : 'Add New Location'}
+              </h2>
+              <p className="text-gray-500 mt-1">
+                {location ? 'Update location details and coordinates' : 'Create a new location with map coordinates'}
+              </p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </button>        </div>
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location Name*
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
-                placeholder="e.g. Main Building"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address*
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
-                placeholder="e.g. 123 Main St"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="2"
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
-              placeholder="Brief description of this location"
-            ></textarea>
-          </div>          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Latitude*
-              </label>
-              <input
-                type="number"
-                name="latitude"
-                value={formData.latitude || ''}
-                onChange={handleChange}
-                required
-                step="0.000001"
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
-                placeholder="e.g. 41.40338"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Longitude*
-              </label>
-              <input
-                type="number"
-                name="longitude"
-                value={formData.longitude || ''}
-                onChange={handleChange}
-                required
-                step="0.000001"
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
-                placeholder="e.g. 2.17403"
-              />
-            </div>
-          </div>          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search or Click on Map*
-            </label>
-            <LocationSearchBar 
-              onLocationFound={(coords) => {
-                setFormData(prev => ({
-                  ...prev,
-                  latitude: coords.latitude,
-                  longitude: coords.longitude,
-                  address: coords.address || prev.address
-                }));
-              }}
-            />
-            <LocationPicker 
-              onLocationSelected={(coords) => {
-                setFormData(prev => ({
-                  ...prev,
-                  latitude: coords.latitude,
-                  longitude: coords.longitude,
-                  address: coords.address || prev.address
-                }));
-              }}
-              initialLocation={
-                formData.latitude && formData.longitude
-                  ? [formData.latitude, formData.longitude]
-                  : null
-              }
-            />
-            {formData.latitude && formData.longitude && (
-              <p className="mt-2 text-sm text-gray-600">
-                Selected coordinates: {Number(formData.latitude).toFixed(6)}, {Number(formData.longitude).toFixed(6)}
-              </p>
-            )}            <p className="mt-1 text-xs sm:text-sm text-gray-600">
-              {formData.address || 'No address selected yet. Search above or click on the map.'}
-            </p>
-          </div>
-
-          <div className="flex justify-end space-x-3 mt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl hover:from-gray-800 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        {/* Content */}
+        <div className="p-6 lg:p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Information Section */}
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-[#0E1530] rounded-xl flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  {location ? 'Updating...' : 'Adding...'}
-                </div>              ) : isEdit ? 'Update Location' : 'Add Location'}
-            </button>
-          </div>
-        </form>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Location Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
+                    placeholder="e.g. Main Building, Warehouse A"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Address *
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
+                    placeholder="e.g. 123 Main Street, City, State"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows="3"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all resize-none"
+                  placeholder="Brief description of this location, facilities, or special considerations"
+                ></textarea>
+              </div>
+            </div>
+
+            {/* Coordinates Section */}
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-[#0E1530] rounded-xl flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Coordinates</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Latitude *
+                  </label>
+                  <input
+                    type="number"
+                    name="latitude"
+                    value={formData.latitude || ''}
+                    onChange={handleChange}
+                    required
+                    step="0.000001"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
+                    placeholder="e.g. 41.40338"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Longitude *
+                  </label>
+                  <input
+                    type="number"
+                    name="longitude"
+                    value={formData.longitude || ''}
+                    onChange={handleChange}
+                    required
+                    step="0.000001"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
+                    placeholder="e.g. 2.17403"
+                  />
+                </div>
+              </div>
+
+              {formData.latitude && formData.longitude && (
+                <div className="mt-4 p-4 bg-[#0E1530]/5 border border-[#0E1530]/10 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[#0E1530]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm font-semibold text-[#0E1530]">
+                      Selected coordinates: {Number(formData.latitude).toFixed(6)}, {Number(formData.longitude).toFixed(6)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Map Section */}
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-[#0E1530] rounded-xl flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Map Selection</h3>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Search Location *
+                  </label>
+                  <LocationSearchBar 
+                    onLocationFound={(coords) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                        address: coords.address || prev.address
+                      }));
+                    }}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Click on Map to Select *
+                  </label>
+                  <LocationPicker 
+                    onLocationSelected={(coords) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                        address: coords.address || prev.address
+                      }));
+                    }}
+                    initialLocation={
+                      formData.latitude && formData.longitude
+                        ? [formData.latitude, formData.longitude]
+                        : null
+                    }
+                  />
+                </div>
+                
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 mb-1">Location Selection</p>
+                      <p className="text-sm text-blue-700">
+                        {formData.address || 'No address selected yet. Search above or click on the map to select a location.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-3 border-2 border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-3 bg-[#0E1530] text-white rounded-xl font-semibold hover:bg-[#0E1530]/90 shadow-lg hover:shadow-xl transition-all duration-200 disabled:bg-gray-300 disabled:shadow-none"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    {location ? 'Updating...' : 'Adding...'}
+                  </div>
+                ) : (
+                  location ? 'Update Location' : 'Add Location'
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
