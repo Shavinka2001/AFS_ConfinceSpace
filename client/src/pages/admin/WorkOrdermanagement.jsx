@@ -43,7 +43,9 @@ const WorkOrderManagementPage = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, []);  // Search handlers
+  }, []);
+
+  // Search handlers
   const handleSearchChange = (e) => {
     const { name, value } = e.target;
     const newSearch = { ...search, [name]: value };
@@ -86,6 +88,7 @@ const WorkOrderManagementPage = () => {
       }
     }, 300); // 300ms debounce
   };
+
   const handleSearch = (e) => {
     e.preventDefault();
     
@@ -135,6 +138,7 @@ const WorkOrderManagementPage = () => {
     setIsEdit(true);
     setShowModal(true);
   };
+
   // Function to show delete confirmation modal
   const handleDelete = (id) => {
     setOrderToDelete(id);
@@ -228,74 +232,115 @@ const WorkOrderManagementPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
-            <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Confined Space Work Orders</h1>
-              <p className="mt-2 text-base sm:text-lg text-gray-700">Manage and track confined space work orders</p>
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 lg:p-12 mb-8">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-6 lg:space-y-0">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">Confined Space Work Orders</h1>
+                  <p className="text-lg text-gray-600 mt-2">Manage and track confined space assessments</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
+                  <span>Total Orders: {orders.length}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span>Permit Required: {orders.filter(o => o.permitRequired).length}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>No Permit: {orders.filter(o => !o.permitRequired).length}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleAdd}
+                className="px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add New Order
+              </button>
             </div>
           </div>
         </div>
 
         {/* Alert Section */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-8">
           <WorkOrderAlert type={alert.type} message={alert.message} />
-        </div>        {/* Search Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <WorkOrderSearch 
-              search={search} 
-              onChange={handleSearchChange} 
-              onSearch={handleSearch} 
-              onClear={clearSearch}
-            />
-            <div className="flex flex-col w-full max-w-xs gap-3 mt-4 sm:mt-0">
-              <button
-                onClick={handleDownloadFilteredExcel}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-black text-white font-bold text-base shadow-lg hover:bg-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-black"
-                title="Download filtered work orders as Excel"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-                </svg>
-                Download Filtered
-              </button>
-              <button
-                onClick={() => setShowDeleteAllModal(true)}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white text-black font-bold text-base shadow-lg border border-black hover:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-60"
-                title="Delete all work orders"
-                disabled={orders.length === 0}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                Delete All
-              </button>
-            </div>
+        </div>
+
+        {/* Search Section */}
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 mb-8">
+          <WorkOrderSearch 
+            search={search} 
+            onChange={handleSearchChange} 
+            onSearch={handleSearch} 
+            onClear={clearSearch}
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={handleDownloadFilteredExcel}
+              className="flex-1 sm:flex-none px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              title="Download filtered work orders as Excel"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download Excel
+            </button>
+            <button
+              onClick={() => setShowDeleteAllModal(true)}
+              className="flex-1 sm:flex-none px-6 py-3 border-2 border-red-200 text-red-700 font-semibold rounded-xl hover:bg-red-50 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center gap-2"
+              title="Delete all work orders"
+              disabled={orders.length === 0}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete All
+            </button>
           </div>
         </div>
 
         {/* Table Section */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-gray-900"></div>
+            <div className="flex justify-center items-center py-16">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                <p className="text-gray-600 font-medium">Loading work orders...</p>
+              </div>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <WorkOrderTable 
-                orders={orders} 
-                onEdit={handleEdit} // Enable edit for technician/user side
-                onDelete={handleDelete}
-                searchParams={search}
-              />
-            </div>
+            <WorkOrderTable 
+              orders={orders} 
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              searchParams={search}
+            />
           )}
         </div>
-      </div>      {/* Add/Edit Modal */}
+      </div>
+
+      {/* Add/Edit Modal */}
       <WorkOrderModal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -304,31 +349,45 @@ const WorkOrderManagementPage = () => {
           setShowModal(false);
         }}
         order={currentOrder}
-        isEdit={isEdit} // Pass correct edit state
+        isEdit={isEdit}
       />
       
       {/* Delete Confirmation Modal */}
       {showDeleteConfirmModal && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Confirm Delete</h3>
-            <p className="text-gray-700 mb-6">
-              Are you sure you want to delete this work order? This action cannot be undone.
-            </p>
-            <div className="flex space-x-4 justify-end">
-              <button
-                onClick={cancelDelete}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-                disabled={isDeleting} // Disable button while deleting
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-100">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Confirm Delete</h3>
+              <p className="text-gray-600 mb-8">
+                Are you sure you want to delete this work order? This action cannot be undone.
+              </p>
+              <div className="flex space-x-4 justify-center">
+                <button
+                  onClick={cancelDelete}
+                  className="px-6 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-all duration-200"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Deleting...
+                    </div>
+                  ) : (
+                    "Delete"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -336,44 +395,58 @@ const WorkOrderManagementPage = () => {
 
       {/* Delete All Confirmation Modal */}
       {showDeleteAllModal && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Delete All Work Orders</h3>
-            <p className="text-gray-700 mb-4">
-              Are you sure you want to delete <span className="font-bold">{orders.length}</span> work orders? This action cannot be undone.
-            </p>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Please type <span className="font-mono bg-gray-100 px-2 py-1 rounded text-red-700">delete all</span> to confirm:
-              </label>
-              <input
-                type="text"
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
-                value={deleteAllConfirmInput}
-                onChange={e => setDeleteAllConfirmInput(e.target.value)}
-                disabled={isDeletingAll}
-                autoFocus
-                placeholder="Type 'delete all' to confirm"
-              />
-            </div>
-            <div className="flex space-x-4 justify-end">
-              <button
-                onClick={() => {
-                  setShowDeleteAllModal(false);
-                  setDeleteAllConfirmInput("");
-                }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
-                disabled={isDeletingAll}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAllOrders}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-                disabled={isDeletingAll || deleteAllConfirmInput.trim().toLowerCase() !== "delete all"}
-              >
-                {isDeletingAll ? "Deleting..." : "Delete All"}
-              </button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-100">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Delete All Work Orders</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete <span className="font-bold text-red-600">{orders.length}</span> work orders? This action cannot be undone.
+              </p>
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Please type <span className="font-mono bg-gray-100 px-2 py-1 rounded text-red-700">delete all</span> to confirm:
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  value={deleteAllConfirmInput}
+                  onChange={e => setDeleteAllConfirmInput(e.target.value)}
+                  disabled={isDeletingAll}
+                  autoFocus
+                  placeholder="Type 'delete all' to confirm"
+                />
+              </div>
+              <div className="flex space-x-4 justify-center">
+                <button
+                  onClick={() => {
+                    setShowDeleteAllModal(false);
+                    setDeleteAllConfirmInput("");
+                  }}
+                  className="px-6 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+                  disabled={isDeletingAll}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAllOrders}
+                  className="px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-all duration-200"
+                  disabled={isDeletingAll || deleteAllConfirmInput.trim().toLowerCase() !== "delete all"}
+                >
+                  {isDeletingAll ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Deleting...
+                    </div>
+                  ) : (
+                    "Delete All"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  api-gateway:
+    image: my-api-gateway
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+
+  auth:
+    image: my-auth-service
+    ports:
+      - "5001:5001"
+    networks:
+      - backend
+
+  confined-space:
+    image: my-confined-service
+    ports:
+      - "5002:5002"
+    networks:
+      - backend
+
+  client:
+    image: my-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api-gateway
+      - auth
+      - confined-space
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge 

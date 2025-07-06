@@ -11,19 +11,22 @@ import * as XLSX from "xlsx";
 // StatCard Component
 const StatCard = ({ name, value, icon, trend }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-600">{name}</p>
-          <p className="text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
-          {trend && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-              {trend}
-            </span>
-          )}
+    <div className="bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 group">
+      <div className="flex items-center justify-between mb-4">
+        <div className="w-12 h-12 bg-[#0E1530] rounded-2xl flex items-center justify-center shadow-lg">
+          {icon}
         </div>
-        <div className="h-12 w-12 rounded-lg bg-slate-900 flex items-center justify-center">{icon}</div>
+        <div className="text-right">
+          <p className="text-2xl font-bold text-gray-900">{value.toLocaleString()}</p>
+          <p className="text-sm text-gray-500">Total</p>
+        </div>
       </div>
+      <p className="text-gray-600 font-semibold">{name}</p>
+      {trend && (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 mt-2">
+          {trend}
+        </span>
+      )}
     </div>
   )
 }
@@ -102,11 +105,13 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
     }) : orders;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all hover:shadow-md h-[320px] flex flex-col w-full relative">
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
+    <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transition-all hover:shadow-2xl h-[320px] flex flex-col w-full relative">
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-100">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <LocationIcon className="h-4 w-4 text-gray-700" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#0E1530] rounded-xl flex items-center justify-center">
+              <LocationIcon className="h-4 w-4 text-white" />
+            </div>
             <div>
               <h3 className="text-sm font-bold text-gray-900 leading-tight">{location.name}</h3>
               <p className="text-xs text-gray-600 truncate max-w-[180px]">
@@ -117,11 +122,10 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {orders.length}
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#0E1530]/10 text-[#0E1530]">
+              {orders.length} orders
             </span>
-           
           </div>
         </div>
       </div>      <div className="px-3 py-2 flex-1 flex flex-col overflow-hidden">
@@ -132,23 +136,24 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
           </div>
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">            {/* Search input for orders within this location */}
-            <div className="mb-2">
-              <div className="relative bg-gray-50 rounded-md">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
-                  <svg className="h-3 w-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mb-3">
+              <div className="relative bg-gray-50 rounded-lg">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg className="h-3 w-3 text-[#0E1530]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                </div>                <input
+                </div>
+                <input
                   type="text"
                   placeholder="Search by sequence number (1, 2, 3...)"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-2 py-1.5 pl-7 pr-8 text-xs rounded-md border border-gray-200 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none bg-transparent"
+                  className="w-full px-3 py-2 pl-8 pr-8 text-xs rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] focus:outline-none bg-transparent"
                 />
                 {searchTerm && (
                   <button 
                     onClick={() => setSearchTerm('')}
-                    className="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                   >
                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -158,20 +163,24 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
               </div>
             </div>
             
-            {/* Header for table */}            <div className="bg-gray-50 sticky top-0 z-10 rounded-t-md">
+            {/* Header for table */}
+            <div className="bg-gray-50 sticky top-0 z-10 rounded-t-lg">
               <table className="min-w-full text-xs border-collapse table-fixed">
-                <thead>                  <tr className="text-xs">
-                    <th scope="col" className="px-2 py-2 text-left text-xs font-medium text-gray-500 w-[40%]">
+                <thead>
+                  <tr className="text-xs">
+                    <th scope="col" className="px-3 py-2 text-left text-xs font-semibold text-gray-700 w-[40%]">
                       ID
                     </th>
-                    <th scope="col" className="px-2 py-2 text-left text-xs font-medium text-gray-500 w-[30%]">
+                    <th scope="col" className="px-3 py-2 text-left text-xs font-semibold text-gray-700 w-[30%]">
                       Date
                     </th>
-                    <th scope="col" className="px-2 py-2 text-right text-xs font-medium text-gray-500 w-[30%]">
+                    <th scope="col" className="px-3 py-2 text-right text-xs font-semibold text-gray-700 w-[30%]">
                       Actions
                     </th>
                   </tr>
-                </thead>              </table>            </div>
+                </thead>
+              </table>
+            </div>
               {/* Scrollable container for all orders */}            <div className="flex-1 overflow-y-auto h-[180px] overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300">
               <table className="min-w-full text-xs border-collapse table-fixed">
                 <tbody className="bg-white divide-y divide-gray-100">
@@ -185,25 +194,26 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
                           key={order._id || originalIndex}
                           className={`hover:bg-gray-50 transition-colors h-[46px] ${
                             searchTerm && String(sequenceNumber) === searchTerm
-                              ? 'bg-blue-50'
+                              ? 'bg-[#0E1530]/5'
                               : ''
                           }`}
-                        ><td className="scope='col' px-2 py-2 whitespace-nowrap text-xs text-gray-500 w-[30%]">
+                        >
+                          <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-700 w-[40%]">
                             <div className="flex items-center">
-                              <span className="font-mono text-gray-900">#{sequenceNumber}</span>
+                              <span className="font-mono text-gray-900 font-semibold">#{sequenceNumber}</span>
                             </div>
                           </td>
-                          <td className="scope='col' px-2 py-2 whitespace-nowrap text-xs text-gray-500 w-[30%]">
+                          <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600 w-[30%]">
                             <div className="flex items-center">
-                              <CalendarIcon className="mr-1 h-3 w-3 flex-shrink-0" />
+                              <CalendarIcon className="mr-1 h-3 w-3 flex-shrink-0 text-gray-500" />
                               <span className="truncate max-w-[80px]">{order.dateOfSurvey?.slice(0, 10) || "No date"}</span>
                             </div>
                           </td>
-                          <td className="px-2 py-2 whitespace-nowrap text-right">
-                            <div className="flex justify-end space-x-1">
+                          <td className="px-3 py-2 whitespace-nowrap text-right">
+                            <div className="flex justify-end gap-1">
                               <button
                                 onClick={() => onViewOrder(order)}
-                                className="p-1 rounded text-blue-600 hover:bg-blue-50 transition-colors"
+                                className="p-1.5 rounded-lg text-[#0E1530] hover:bg-[#0E1530]/10 transition-colors"
                                 title="View Order"
                               >
                                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +223,7 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
                               </button>
                               <button
                                 onClick={() => onDeleteOrder(order._id)}
-                                className="p-1 rounded text-red-600 hover:bg-red-50 transition-colors"
+                                className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
                                 title="Delete Order"
                               >
                                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,8 +252,11 @@ const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, 
             </div>
             
             {/* View All Orders Button */}
-            <div className="mt-auto pt-2 border-t border-gray-100">
-              <a href={`/admin/workorders?location=${location._id}`} className="text-xs text-blue-600 hover:text-blue-800 flex items-center justify-center py-1">
+            <div className="mt-auto pt-3 border-t border-gray-100">
+              <a 
+                href={`/admin/workorders?location=${location._id}`} 
+                className="text-xs text-[#0E1530] hover:text-[#0E1530]/80 font-semibold flex items-center justify-center py-2 hover:bg-[#0E1530]/5 rounded-lg transition-colors"
+              >
                 View All Orders
                 <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -262,19 +275,21 @@ const WorkOrderLocationGrid = ({ workOrdersByLocation, loading, onViewOrder, onE
   if (loading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {[...Array(2)].map((_, i) => (          <div key={i} className="h-[420px] bg-gray-100 rounded-xl animate-pulse flex flex-col">
-            <div className="h-16 bg-gray-200 rounded-t-xl"></div>            <div className="flex-1 p-4 space-y-3">
-              <div className="h-8 bg-gray-200 rounded-lg w-full mb-2"></div>
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="h-[420px] bg-white rounded-3xl shadow-xl border border-gray-100 animate-pulse flex flex-col">
+            <div className="h-20 bg-gray-200 rounded-t-3xl"></div>
+            <div className="flex-1 p-6 space-y-4">
+              <div className="h-10 bg-gray-200 rounded-xl w-full"></div>
               {/* Scrollable area for orders */}
-              <div className="h-[230px] overflow-hidden space-y-2">
-                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
-                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
-                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
-                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
-                <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+              <div className="h-[240px] overflow-hidden space-y-3">
+                <div className="h-12 bg-gray-200 rounded-lg w-full"></div>
+                <div className="h-12 bg-gray-200 rounded-lg w-full"></div>
+                <div className="h-12 bg-gray-200 rounded-lg w-full"></div>
+                <div className="h-12 bg-gray-200 rounded-lg w-full"></div>
+                <div className="h-12 bg-gray-200 rounded-lg w-full"></div>
               </div>
               {/* View All Orders button placeholder */}
-              <div className="h-6 bg-gray-200 rounded-lg w-1/3 mx-auto mt-auto"></div>
+              <div className="h-8 bg-gray-200 rounded-xl w-1/3 mx-auto mt-auto"></div>
             </div>
           </div>
         ))}
@@ -286,12 +301,12 @@ const WorkOrderLocationGrid = ({ workOrdersByLocation, loading, onViewOrder, onE
   
   if (!locationEntries || locationEntries.length === 0) {
     return (
-      <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-        <div className="mx-auto h-20 w-20 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm">
+      <div className="text-center py-16 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+        <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
           <LocationIcon className="h-10 w-10 text-gray-400" />
         </div>
-        <p className="text-gray-500 text-lg font-medium">No locations or work orders found.</p>
-        <p className="text-gray-400 text-sm max-w-md mx-auto mt-2">
+        <p className="text-gray-600 text-xl font-semibold mb-3">No locations or work orders found.</p>
+        <p className="text-gray-500 text-sm max-w-md mx-auto">
           Add locations and work orders to see them displayed here with their associated data.
         </p>
       </div>
@@ -1032,80 +1047,108 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="px-4 py-8 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-8">
         {/* Header Section */}
-        <div className="bg-slate-900 rounded-2xl p-8 text-white">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight">
-                Welcome back, {admin.firstname} {admin.lastname}!
-              </h1>              <div className="flex items-center space-x-4 text-slate-300">
-                <div className="flex items-center space-x-2">
-                  <CalendarIcon />
-                  <span className="text-sm">{currentDateTime.date}</span>
+        <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white rounded-3xl p-8 lg:p-12 shadow-2xl border border-gray-100">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <ClockIcon />
-                  <span className="text-sm">{currentDateTime.time}</span>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">
+                    Welcome back, {admin.firstname} {admin.lastname}!
+                  </h1>
+                  <div className="flex items-center gap-6 mt-3 text-gray-300">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4" />
+                      <span className="text-sm">{currentDateTime.date}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ClockIcon className="w-4 h-4" />
+                      <span className="text-sm">{currentDateTime.time}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="mt-6 lg:mt-0 flex items-center space-x-4">
-              <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center shadow-lg">
-                <span className="text-slate-900 font-bold text-xl">
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <p className="text-sm text-gray-300 font-medium">Role</p>
+                <p className="text-xl font-bold">Administrator</p>
+              </div>
+              <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center shadow-inner">
+                <span className="text-gray-900 font-bold text-xl">
                   {admin.firstname?.[0] || "A"}
                   {admin.lastname?.[0] || ""}
                 </span>
               </div>
-              <div className="space-y-1">
-                <p className="text-sm text-slate-300 font-medium">Role</p>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white text-slate-900">
-                  {admin.userType === "admin" ? "Administrator" : "User"}
-                </span>
-              </div>            </div>
+            </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
-            <StatCard
-              key={index}
-              name={stat.name}
-              value={stat.value}
-              icon={stat.icon}
-              trend={stat.trend}
-            />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            name="Confined Orders"
+            value={stats[0]?.value || 0}
+            icon={<ClipboardIcon className="text-white w-6 h-6" />}
+            trend="orders"
+          />
           <StatCard
             name="Total Locations"
             value={locations.length}
             icon={<LocationIcon className="text-white w-6 h-6" />}
             trend="With work orders"
           />
-        </div>        {/* Work Orders by Location Section */}        <div className="bg-white border border-gray-200 rounded-xl shadow-lg">
-          <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 rounded-t-xl">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                <WorkOrderIcon className="h-5 w-5" />
-                <span>Work Orders by Location</span>
-              </h2>
-              <div className="flex items-center space-x-3">
-                {/* Download All Button */}
+          <StatCard
+            name="Total Users"
+            value={users.length}
+            icon={<UsersIcon className="text-white w-6 h-6" />}
+            trend="registered"
+          />
+          <StatCard
+            name="Active Orders"
+            value={workOrders.filter(order => order.isActive !== false).length}
+            icon={<WorkOrderIcon className="text-white w-6 h-6" />}
+            trend="active"
+          />
+        </div>        {/* Work Orders by Location Section */}
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+          <div className="bg-white border-b border-gray-100 px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#0E1530] rounded-xl flex items-center justify-center">
+                  <WorkOrderIcon className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Work Orders by Location</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {Object.keys(workOrdersByLocation).length} locations with work orders
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
                 <button
                   onClick={handleDownloadAllExcel}
-                  className="text-sm font-medium text-gray-700 hover:gray-green-900 flex items-center bg-gray-50 px-3 py-2 rounded-md border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow transition-all"
+                  className="px-4 py-2 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 flex items-center gap-2"
                   title="Download all work orders as Excel"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Download Report
                 </button>
-                <a href="/admin/workorders" className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-white px-3 py-2 rounded-md border border-blue-100 hover:border-blue-200 shadow-sm hover:shadow transition-all">
+                <a 
+                  href="/admin/workorders" 
+                  className="px-4 py-2 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                >
                   View All Orders
-                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </a>
@@ -1114,9 +1157,9 @@ export default function Dashboard() {
           </div>
           <div className="p-6 lg:p-8">
             {/* Search bar for locations */}
-            <div className="mb-4">
+            <div className="mb-6">
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -1126,12 +1169,12 @@ export default function Dashboard() {
                   placeholder="Search locations by name or address..."
                   value={locationSearchTerm}
                   onChange={(e) => setLocationSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none"
+                  className="w-full pl-12 pr-12 py-3 text-sm rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] focus:outline-none bg-white"
                 />
                 {locationSearchTerm && (
                   <button 
                     onClick={() => setLocationSearchTerm('')}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600"
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -1142,10 +1185,12 @@ export default function Dashboard() {
             </div>
             
             {locationSearchTerm && filteredLocations.length === 0 ? (
-              <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                <LocationIcon className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-500 text-lg font-medium">No locations found</p>
-                <p className="text-gray-400 text-sm max-w-md mx-auto mt-2">
+              <div className="text-center py-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <LocationIcon className="h-8 w-8 text-gray-400" />
+                </div>
+                <p className="text-gray-600 text-lg font-semibold mb-2">No locations found</p>
+                <p className="text-gray-500 text-sm max-w-md mx-auto">
                   No locations match your search term "{locationSearchTerm}"
                 </p>
               </div>
@@ -1166,15 +1211,15 @@ export default function Dashboard() {
         </div>
           {/* Work Order Modal would be imported from your components */}
         {showOrderModal && (
-          <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4 pb-3 border-b">
-                <h3 className="text-xl font-bold">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                <h3 className="text-2xl font-bold text-gray-900">
                   {isView ? "View Work Order" : isEdit ? "Edit Work Order" : "Add Work Order"}
                 </h3>
                 <button 
                   onClick={handleOrderModalClose}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -1183,27 +1228,52 @@ export default function Dashboard() {
               </div>
               
               {/* This is where you would place your actual WorkOrderModal component */}
-              <div className="mt-4 text-center text-gray-600">                {isView ? (
-                  <div className="text-left">
-                    <p className="mb-3"><strong>Name/ID:</strong> {currentOrder?.confinedSpaceNameOrId}</p>
-                    <p className="mb-3"><strong>Date:</strong> {currentOrder?.dateOfSurvey?.slice(0, 10)}</p>
-                    <p className="mb-3"><strong>Location:</strong> {currentOrder?.building}</p>
-                    <p className="mb-3"><strong>Permit Required:</strong> {currentOrder?.permitRequired ? "Yes" : "No"}</p>
-                    <p className="mb-3"><strong>Description:</strong> {currentOrder?.locationDescription || "N/A"}</p>
-                    <p className="mb-3"><strong>Created By:</strong> {currentOrder?.surveyors?.join(", ") || currentOrder?.createdBy || "N/A"}</p>
-                    {/* Add more fields as needed */}
+              <div className="mt-6">
+                {isView ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-sm text-gray-500 mb-1">Name/ID</p>
+                        <p className="font-semibold text-gray-900">{currentOrder?.confinedSpaceNameOrId || "N/A"}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-sm text-gray-500 mb-1">Date</p>
+                        <p className="font-semibold text-gray-900">{currentOrder?.dateOfSurvey?.slice(0, 10) || "N/A"}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-sm text-gray-500 mb-1">Location</p>
+                        <p className="font-semibold text-gray-900">{currentOrder?.building || "N/A"}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-sm text-gray-500 mb-1">Permit Required</p>
+                        <p className="font-semibold text-gray-900">{currentOrder?.permitRequired ? "Yes" : "No"}</p>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-sm text-gray-500 mb-1">Description</p>
+                      <p className="font-semibold text-gray-900">{currentOrder?.locationDescription || "N/A"}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-sm text-gray-500 mb-1">Created By</p>
+                      <p className="font-semibold text-gray-900">{currentOrder?.surveyors?.join(", ") || currentOrder?.createdBy || "N/A"}</p>
+                    </div>
                     
-                    <div className="mt-6 flex justify-end">
+                    <div className="flex justify-end pt-4">
                       <button 
                         onClick={handleOrderModalClose} 
-                        className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
+                        className="px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors"
                       >
                         Close
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <p>Import your WorkOrderModal form component here for creating/editing work orders.</p>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <WorkOrderIcon className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-600 font-medium">Import your WorkOrderModal form component here for creating/editing work orders.</p>
+                  </div>
                 )}
               </div>
             </div>
