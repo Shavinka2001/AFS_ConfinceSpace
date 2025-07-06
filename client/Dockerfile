@@ -7,9 +7,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
-WORKDIR /app
-RUN npm install -g serve
-COPY --from=build /app/dist ./dist
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
-CMD ["serve", "-s", "dist", "-l", "80"] 
+CMD ["nginx", "-g", "daemon off;"] 
