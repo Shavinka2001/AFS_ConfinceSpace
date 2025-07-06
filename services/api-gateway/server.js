@@ -15,6 +15,6 @@ const port = process.env.PORT;
 const server = http.createServer(app);
 
 //Server then  listen to the port (4000)
-server.listen(port, () => {
-  console.log(`gateway Server is running on port ${port}`);
+server.listen(port, '0.0.0.0', () => {
+    console.log(`Server then  listen to the port (${port})`);
 });
