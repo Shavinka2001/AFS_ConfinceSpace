@@ -48,8 +48,8 @@ app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API routes
-app.use('/api/auth', userRoutes);
-app.use('/api/locations', locationRoutes);
+app.use('/', userRoutes);
+app.use('/', locationRoutes);
 
 // Health check route
 app.get('/', (req, res) => res.json({

@@ -66,7 +66,7 @@ const WorkOrderManagementPage = () => {
           // First try to get all orders to ensure we have the full dataset
           getWorkOrders().then(allOrders => {
             // Filter orders that match the ID or uniqueId
-            const filteredOrders = allOrders.filter(order => 
+            const filteredOrders = (allOrders || []).filter(order => 
               (order._id && order._id.toLowerCase().includes(lowerCaseValue)) ||
               (order.uniqueId && order.uniqueId.toLowerCase().includes(lowerCaseValue))
             );
@@ -99,7 +99,7 @@ const WorkOrderManagementPage = () => {
         // Get all orders and do client-side filtering for better ID matching
         setLoading(true);
         getWorkOrders().then(allOrders => {
-          const filteredOrders = allOrders.filter(order => {
+          const filteredOrders = (allOrders || []).filter(order => {
             return (
               (order._id && order._id.toLowerCase().includes(idValue.toLowerCase())) ||
               (order.uniqueId && order.uniqueId.toLowerCase().includes(idValue.toLowerCase()))

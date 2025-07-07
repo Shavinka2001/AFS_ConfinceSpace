@@ -171,7 +171,7 @@ const UserManagement = () => {
         }
       });
 
-      setUsers(users.filter(user => user._id !== userToDelete));
+  setUsers((users || []).filter(user => user._id !== userToDelete));
       setSuccess("User deleted successfully!");
       setShowDeleteModal(false);
       setUserToDelete(null);

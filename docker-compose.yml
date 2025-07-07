@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   api-gateway:
+    build: ./services/api-gateway
     image: my-api-gateway
     ports:
       - "5000:5000"
@@ -8,6 +9,7 @@ services:
       - backend
 
   auth:
+    build: ./services/Auth
     image: my-auth-service
     ports:
       - "5001:5001"
@@ -15,6 +17,7 @@ services:
       - backend
 
   confined-space:
+    build: ./services/confinedSpaceInventoryService
     image: my-confined-service
     ports:
       - "5002:5002"
@@ -22,9 +25,10 @@ services:
       - backend
 
   client:
+    build: ./client
     image: my-frontend
     ports:
-      - "8080:80"
+      - "3000:3000"
     depends_on:
       - api-gateway
       - auth

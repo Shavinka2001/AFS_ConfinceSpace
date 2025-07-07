@@ -167,19 +167,19 @@ const LocationManagement = () => {
               <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-black rounded-full"></div>
-                  <span>Total Locations: {locations.length}</span>
+                  <span>Total Locations: {(locations || []).length}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Active: {locations.filter(l => l.isActive !== false).length}</span>
+                  <span>Active: {(locations || []).filter(l => l.isActive !== false).length}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span>With Buildings: {locations.filter(l => l.buildings && l.buildings.length > 0).length}</span>
+                  <span>With Buildings: {(locations || []).filter(l => l.buildings && l.buildings.length > 0).length}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>With Technicians: {locations.filter(l => l.assignedTechnicians && l.assignedTechnicians.length > 0).length}</span>
+                  <span>With Technicians: {(locations || []).filter(l => l.assignedTechnicians && l.assignedTechnicians.length > 0).length}</span>
                 </div>
               </div>
             </div>
