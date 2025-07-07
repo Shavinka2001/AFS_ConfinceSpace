@@ -58,7 +58,9 @@ const WorkOrderModal = ({ show, onClose, onSubmit, order, onChange, isEdit }) =>
     const fetchLocations = async () => {
       try {
         setIsLoadingLocations(true);
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/locations/assigned/me`, {
+  // Ensure no double slashes in the URL
+  const apiBase = (import.meta.env.VITE_API_URL || 'http://4.236.138.4/api').replace(/\/$/, '');
+  const response = await fetch(`${apiBase}/locations/assigned/me`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")}`,
             'Content-Type': 'application/json'
