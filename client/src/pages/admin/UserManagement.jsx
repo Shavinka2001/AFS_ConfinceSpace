@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 
 // Configure axios defaults
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api/auth',
+  baseURL: 'http://4.236.138.4/api/auth',
   headers: {
     'Content-Type': 'application/json',
   },

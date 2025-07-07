@@ -28,10 +28,21 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Middleware
+const allowedOrigins = [
+    process.env.CORS_ORIGIN || 'http://localhost:5173',
+    'http://localhost:3000',
+    'http://4.236.138.4',
+    'http://localhost:8080'
+];
 app.use(cors({
-    origin: [
-        process.env.CORS_ORIGIN || 'http://localhost:5173',
-        'http://4.236.138.4','http://localhost:8080'],
+    origin: function(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -48,8 +59,8 @@ app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API routes
-app.use('/api/auth', userRoutes);
-app.use('/api/locations', locationRoutes);
+app.use('/', userRoutes);
+app.use('/', locationRoutes);
 
 // Health check route
 app.get('/', (req, res) => res.json({
