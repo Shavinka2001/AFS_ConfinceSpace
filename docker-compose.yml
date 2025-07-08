@@ -21,6 +21,13 @@ services:
     networks:
       - backend
 
+  location-service:
+    image: my-location-service
+    ports:
+      - "5003:5003"
+    networks:
+      - backend
+
   client:
     image: my-frontend
     ports:
@@ -29,6 +36,7 @@ services:
       - api-gateway
       - auth
       - confined-space
+      - location-service
     networks:
       - backend
 

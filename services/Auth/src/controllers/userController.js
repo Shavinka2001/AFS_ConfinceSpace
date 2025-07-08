@@ -275,3 +275,126 @@ exports.approveUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Validate technician assignments
+exports.validateTechnicianAssignments = async (req, res) => {
+  try {
+    const { technicianIds, locationId, previouslyAssignedTechs } = req.body;
+
+    if (!technicianIds || !Array.isArray(technicianIds)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Technician IDs must be provided as an array'
+      });
+    }
+
+    if (!locationId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Location ID is required'
+      });
+    }
+
+    // Check if all technician IDs exist and are active technicians
+    const technicians = await User.find({
+      _id: { $in: technicianIds },
+      userType: 'user',
+      isActive: true
+    });
+
+    if (technicians.length !== technicianIds.length) {
+      const foundIds = technicians.map(tech => tech._id.toString());
+      const invalidIds = technicianIds.filter(id => !foundIds.includes(id));
+      
+      return res.status(400).json({
+        success: false,
+        message: `Invalid or inactive technician IDs: ${invalidIds.join(', ')}`
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Technician assignments validated successfully'
+    });
+  } catch (error) {
+    console.error('Error validating technician assignments:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error validating technician assignments'
+    });
+  }
+};
+
+// Update location assignments for users
+exports.updateLocationAssignments = async (req, res) => {
+  try {
+    const { technicianIds, locationId, techsToRemove } = req.body;
+
+    if (!locationId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Location ID is required'
+      });
+    }
+
+    // Add location to new technicians
+    if (technicianIds && technicianIds.length > 0) {
+      await User.updateMany(
+        { _id: { $in: technicianIds } },
+        { $addToSet: { assignedLocations: locationId } }
+      );
+    }
+
+    // Remove location from technicians that are no longer assigned
+    if (techsToRemove && techsToRemove.length > 0) {
+      await User.updateMany(
+        { _id: { $in: techsToRemove } },
+        { $pull: { assignedLocations: locationId } }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Location assignments updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating location assignments:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating location assignments'
+    });
+  }
+};
+
+// Remove location from all users (used when location is deleted)
+exports.removeLocationFromUsers = async (req, res) => {
+  try {
+    const { locationId } = req.params;
+
+    if (!locationId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Location ID is required'
+      });
+    }
+
+    // Remove the location from all users' assignedLocations arrays
+    await User.updateMany(
+      { assignedLocations: locationId },
+      { $pull: { assignedLocations: locationId } }
+    );
+
+    res.json({
+      success: true,
+      message: 'Location removed from all users successfully'
+    });
+  } catch (error) {
+    console.error('Error removing location from users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error removing location from users'
+    });
+  }
+};
+
+

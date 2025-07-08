@@ -72,4 +72,10 @@ router.post("/", protect, isAdmin, userController.createUser);
 // Add this route for approving users
 router.patch('/approve/:id', protect, isAdmin, userController.approveUser);
 
+// Location assignment routes
+router.post('/validate-technician-assignments', protect, isAdmin, userController.validateTechnicianAssignments);
+router.post('/update-location-assignments', protect, isAdmin, userController.updateLocationAssignments);
+router.patch('/remove-location/:locationId', protect, isAdmin, userController.removeLocationFromUsers);
+
+
 module.exports = router;

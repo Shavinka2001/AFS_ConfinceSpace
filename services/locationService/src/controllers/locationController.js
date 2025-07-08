@@ -1,11 +1,14 @@
-const Location = require('../model/Location');
-const User = require('../model/User');
+const Location = require('../models/Location');
 const { StatusCodes } = require('http-status-codes');
+const axios = require('axios');
 
 // Create a new location
 exports.createLocation = async (req, res) => {
   try {
     const { name, latitude, longitude, address, description } = req.body;
+    
+    console.log('Location creation request received:', req.body);
+    console.log('User info:', req.user);
     
     // Basic validation
     if (!name || !latitude || !longitude || !address) {
@@ -18,11 +21,11 @@ exports.createLocation = async (req, res) => {
     // Create location with user ID from token
     const location = await Location.create({
       name,
-      latitude,
-      longitude,
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
       address,
       description: description || '',
-      createdBy: req.user.userId // From auth middleware
+      createdBy: req.user.userId
     });
     
     res.status(201).json({
@@ -41,10 +44,14 @@ exports.createLocation = async (req, res) => {
 // Get all locations
 exports.getAllLocations = async (req, res) => {
   try {
+    console.log('Fetching all locations...');
+    
+    // Get locations without population to avoid User model issues
     const locations = await Location.find()
-      .sort({ createdAt: -1 })
-      .populate('createdBy', 'firstname lastname email');
-      
+      .sort({ createdAt: -1 });
+    
+    console.log(`Found ${locations.length} locations`);
+    
     res.json({
       success: true,
       count: locations.length,
@@ -62,8 +69,7 @@ exports.getAllLocations = async (req, res) => {
 // Get a single location by ID
 exports.getLocationById = async (req, res) => {
   try {
-    const location = await Location.findById(req.params.id)
-      .populate('createdBy', 'firstname lastname email');
+    const location = await Location.findById(req.params.id);
       
     if (!location) {
       return res.status(404).json({ 
@@ -105,7 +111,7 @@ exports.updateLocation = async (req, res) => {
     if (location.createdBy.toString() !== req.user.userId && !req.user.isAdmin) {
       return res.status(403).json({ 
         success: false, 
-        message: 'You do not have permission to update this location' 
+        message: 'Not authorized to update this location' 
       });
     }
     
@@ -113,7 +119,7 @@ exports.updateLocation = async (req, res) => {
       locationId,
       updates,
       { new: true, runValidators: true }
-    ).populate('createdBy', 'firstname lastname email');
+    );
     
     res.json({
       success: true,
@@ -147,17 +153,23 @@ exports.deleteLocation = async (req, res) => {
     if (location.createdBy.toString() !== req.user.userId && !req.user.isAdmin) {
       return res.status(403).json({ 
         success: false, 
-        message: 'You do not have permission to delete this location' 
+        message: 'Not authorized to delete this location' 
       });
     }
     
-    // Remove this location from all users' assignedLocations arrays
-    await User.updateMany(
-      { assignedLocations: locationId },
-      { $pull: { assignedLocations: locationId } }
-    );
+    // Remove this location from all users' assignedLocations arrays - call Auth service
+    try {
+      const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
+      await axios.patch(`${authServiceUrl}/api/auth/remove-location/${locationId}`, {}, {
+        headers: {
+          'Authorization': req.headers.authorization // Forward the auth token
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to update user assignments:', error.message);
+      // Continue with location deletion even if user update fails
+    }
 
-    // Optionally, you could also clear assignedTechnicians from the location (not strictly needed since location is deleted)
     await Location.findByIdAndDelete(locationId);
     
     res.json({
@@ -192,7 +204,7 @@ exports.toggleLocationStatus = async (req, res) => {
     if (!req.user.isAdmin) {
       return res.status(403).json({ 
         success: false, 
-        message: 'Only administrators can change location status' 
+        message: 'Admin access required' 
       });
     }
     
@@ -223,26 +235,28 @@ exports.assignTechnicians = async (req, res) => {
     const isAdmin = req.user.isAdmin;
 
     if (!locationId) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ 
+      return res.status(400).json({ 
+        success: false, 
         message: 'Location ID is required' 
       });
     }
 
     if (!technicianIds || !Array.isArray(technicianIds)) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ 
-        message: 'Technician IDs array is required' 
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Technician IDs must be provided as an array' 
       });
     }
     
     // Special case: Allow non-admin technicians to detach themselves from a location
-    // This is used for the "Close Work" functionality
     const isSelfDetachment = !isAdmin && technicianIds.length === 0;
 
     // Find the location
     const location = await Location.findById(locationId);
     if (!location) {
-      return res.status(StatusCodes.NOT_FOUND).json({ 
-        message: `Location with ID ${locationId} not found` 
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Location not found' 
       });
     }
 
@@ -250,90 +264,91 @@ exports.assignTechnicians = async (req, res) => {
     const previouslyAssignedTechs = [...location.assignedTechnicians];
     const techsToRemove = previouslyAssignedTechs.filter(
       techId => !technicianIds.includes(techId.toString())
-    );    // For self-detachment, we need to check if the user is assigned to this location
+    );
+
+    // For self-detachment, check if the user is assigned to this location
     if (isSelfDetachment) {
-      // Verify the user is actually assigned to this location
-      if (!previouslyAssignedTechs.includes(userId) && 
-          !previouslyAssignedTechs.some(id => id.toString() === userId)) {
-        return res.status(StatusCodes.FORBIDDEN).json({
-          message: 'You are not assigned to this location'
+      if (!location.assignedTechnicians.includes(userId)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'You are not assigned to this location' 
         });
       }
       
-      // If it's a self-detachment, we only remove the current user
-      techsToRemove.push(userId);
-    }
-    // Admin is adding/updating technicians - do the regular checks
-    else if (!isSelfDetachment) {
-      // Check if any of the new technicians are already assigned to another location
-      for (const techId of technicianIds) {
-        // Skip technicians that are already assigned to this location
-        if (previouslyAssignedTechs.includes(techId.toString())) {
-          continue;
-        }
-        
-        const technician = await User.findById(techId);
-        
-        if (technician && technician.assignedLocations && technician.assignedLocations.length > 0) {
-          // Check if the technician is assigned to a different location
-          const otherLocations = technician.assignedLocations.filter(
-            locId => locId.toString() !== locationId
-          );
-          
-          if (otherLocations.length > 0) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-              message: `Technician ${technician.firstname} ${technician.lastname} is already assigned to another location. A technician can only be assigned to one location at a time.`
-            });
-          }
-        }
-      }
-    }
-      if (isSelfDetachment) {
-      // For self-detachment, just remove the user from the location's technicians
+      // Remove the user from the location's assigned technicians
       location.assignedTechnicians = location.assignedTechnicians.filter(
         techId => techId.toString() !== userId
       );
-      await location.save();
-      
-      // Remove this location from the user's assignedLocations
-      await User.findByIdAndUpdate(
-        userId,
-        { $pull: { assignedLocations: locationId } },
-        { new: true }
-      );
     } else {
-      // Regular admin update
-      // Update the location with the new technicians
-      location.assignedTechnicians = technicianIds;
-      await location.save();
-  
-      // Update each technician user by adding this location to their assignedLocations
-      for (const techId of technicianIds) {
-        // First remove any existing location assignments
-        await User.findByIdAndUpdate(
-          techId,
-          { $set: { assignedLocations: [locationId] } }, // Replace with just this location
-          { new: true }
-        );
+      // Check permissions for admin operations
+      if (!isAdmin) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Admin access required' 
+        });
       }
+      
+      // Validate technician assignments via Auth service
+      try {
+        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
+        const response = await axios.post(`${authServiceUrl}/api/auth/validate-technician-assignments`, {
+          technicianIds,
+          locationId,
+          previouslyAssignedTechs
+        }, {
+          headers: {
+            'Authorization': req.headers.authorization // Forward the auth token
+          }
+        });
+        
+        if (!response.data.success) {
+          return res.status(400).json({
+            success: false,
+            message: response.data.message
+          });
+        }
+      } catch (error) {
+        console.error('Error validating technician assignments:', error.message);
+        return res.status(500).json({
+          success: false,
+          message: 'Error validating technician assignments'
+        });
+      }
+      
+      // Update the location's assigned technicians
+      location.assignedTechnicians = technicianIds;
     }
 
-    // For technicians who were removed, update their assignedLocations as well
-    for (const techId of techsToRemove) {
-      await User.findByIdAndUpdate(
-        techId,
-        { $pull: { assignedLocations: locationId } },
-        { new: true }
-      );
+    await location.save();
+
+    // Update user assignments via Auth service
+    try {
+      const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
+      await axios.post(`${authServiceUrl}/api/auth/update-location-assignments`, {
+        technicianIds: isSelfDetachment ? [] : technicianIds,
+        locationId,
+        techsToRemove: isSelfDetachment ? [userId] : techsToRemove
+      }, {
+        headers: {
+          'Authorization': req.headers.authorization
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to update user location assignments:', error.message);
     }
+
+    // Populate and return the updated location
+    const updatedLocation = await Location.findById(locationId);
 
     res.status(StatusCodes.OK).json({
+      success: true,
       message: 'Technicians assigned successfully',
-      location
+      location: updatedLocation
     });
   } catch (error) {
     console.error('Error in assignTechnicians:', error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
       message: 'Error assigning technicians', 
       error: error.message
     });
@@ -347,14 +362,12 @@ exports.getAssignedLocations = async (req, res) => {
     
     // Find all locations where the user is an assigned technician
     const locations = await Location.find({ assignedTechnicians: userId })
-      .sort({ createdAt: -1 })
-      .populate('createdBy', 'firstname lastname email')
-      .populate('assignedTechnicians', 'firstname lastname email');
+      .sort({ createdAt: -1 });
     
     res.json({
       success: true,
       count: locations.length,
-      locations
+      data: locations
     });
   } catch (err) {
     console.error('Error fetching assigned locations:', err);
@@ -392,7 +405,7 @@ exports.addBuildingToLocation = async (req, res) => {
     if (location.createdBy.toString() !== req.user.userId && !req.user.isAdmin) {
       return res.status(403).json({ 
         success: false, 
-        message: 'You do not have permission to add buildings to this location' 
+        message: 'Not authorized to modify this location' 
       });
     }
     
@@ -404,23 +417,25 @@ exports.addBuildingToLocation = async (req, res) => {
     if (existingBuilding) {
       return res.status(400).json({ 
         success: false, 
-        message: 'A building with this name already exists in this location' 
+        message: 'Building with this name already exists in this location' 
       });
     }
     
     // Add new building
     location.buildings.push({
       name: name.trim(),
-      description: description || '',
-      isActive: true
+      description: description || ''
     });
     
     await location.save();
     
+    // Return the updated location
+    const updatedLocation = await Location.findById(locationId);
+    
     res.status(201).json({
       success: true,
       message: 'Building added successfully',
-      location
+      location: updatedLocation
     });
   } catch (err) {
     console.error('Error adding building to location:', err);
@@ -450,12 +465,11 @@ exports.updateBuildingInLocation = async (req, res) => {
     if (location.createdBy.toString() !== req.user.userId && !req.user.isAdmin) {
       return res.status(403).json({ 
         success: false, 
-        message: 'You do not have permission to update buildings in this location' 
+        message: 'Not authorized to modify this location' 
       });
     }
     
     const building = location.buildings.id(buildingId);
-    
     if (!building) {
       return res.status(404).json({ 
         success: false, 
@@ -463,7 +477,7 @@ exports.updateBuildingInLocation = async (req, res) => {
       });
     }
     
-    // Check if building name already exists in this location (excluding current building)
+    // Check if new name conflicts with existing buildings (excluding current building)
     if (name && name !== building.name) {
       const existingBuilding = location.buildings.find(b => 
         b._id.toString() !== buildingId && 
@@ -473,28 +487,31 @@ exports.updateBuildingInLocation = async (req, res) => {
       if (existingBuilding) {
         return res.status(400).json({ 
           success: false, 
-          message: 'A building with this name already exists in this location' 
+          message: 'Building with this name already exists in this location' 
         });
       }
     }
     
-    // Update building fields
-    if (name) building.name = name.trim();
+    // Update building properties
+    if (name !== undefined) building.name = name.trim();
     if (description !== undefined) building.description = description;
     if (isActive !== undefined) building.isActive = isActive;
     
     await location.save();
     
+    // Return the updated location
+    const updatedLocation = await Location.findById(locationId);
+    
     res.json({
       success: true,
       message: 'Building updated successfully',
-      location
+      location: updatedLocation
     });
   } catch (err) {
-    console.error('Error updating building:', err);
+    console.error('Error updating building in location:', err);
     res.status(500).json({ 
       success: false, 
-      message: err.message || 'Error updating building' 
+      message: err.message || 'Error updating building in location' 
     });
   }
 };
@@ -517,33 +534,35 @@ exports.deleteBuildingFromLocation = async (req, res) => {
     if (location.createdBy.toString() !== req.user.userId && !req.user.isAdmin) {
       return res.status(403).json({ 
         success: false, 
-        message: 'You do not have permission to delete buildings from this location' 
+        message: 'Not authorized to modify this location' 
       });
     }
     
-    const building = location.buildings.id(buildingId);
-    
-    if (!building) {
+    const buildingIndex = location.buildings.findIndex(b => b._id.toString() === buildingId);
+    if (buildingIndex === -1) {
       return res.status(404).json({ 
         success: false, 
         message: 'Building not found' 
       });
     }
     
-    // Remove building from the location
-    location.buildings.pull(buildingId);
+    // Remove the building
+    location.buildings.splice(buildingIndex, 1);
     await location.save();
+    
+    // Return the updated location
+    const updatedLocation = await Location.findById(locationId);
     
     res.json({
       success: true,
       message: 'Building deleted successfully',
-      location
+      location: updatedLocation
     });
   } catch (err) {
-    console.error('Error deleting building:', err);
+    console.error('Error deleting building from location:', err);
     res.status(500).json({ 
       success: false, 
-      message: err.message || 'Error deleting building' 
+      message: err.message || 'Error deleting building from location' 
     });
   }
 };
@@ -553,7 +572,7 @@ exports.getBuildingsForLocation = async (req, res) => {
   try {
     const { locationId } = req.params;
     
-    const location = await Location.findById(locationId);
+    const location = await Location.findById(locationId).select('buildings name');
     
     if (!location) {
       return res.status(404).json({ 
@@ -564,18 +583,14 @@ exports.getBuildingsForLocation = async (req, res) => {
     
     res.json({
       success: true,
-      buildings: location.buildings,
-      location: {
-        _id: location._id,
-        name: location.name,
-        address: location.address
-      }
+      locationName: location.name,
+      buildings: location.buildings
     });
   } catch (err) {
-    console.error('Error fetching buildings:', err);
+    console.error('Error fetching buildings for location:', err);
     res.status(500).json({ 
       success: false, 
-      message: err.message || 'Error fetching buildings' 
+      message: err.message || 'Error fetching buildings for location' 
     });
   }
 };

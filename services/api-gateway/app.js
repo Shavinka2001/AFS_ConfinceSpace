@@ -22,11 +22,11 @@ app.use(
   applyRateLimiter,
   proxy("http://confined-space:5002")
 );
-// app.use(
-//   "/api/locations",
-//   applyRateLimiter,
-//   proxy("http://location-service:5003")
-// );
+app.use(
+  "/api/locations",
+  applyRateLimiter,
+  proxy("http://location-service:5003")
+);
 
 //Exporting app to be used by the server.js
 module.exports = app;

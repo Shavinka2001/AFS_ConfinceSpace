@@ -58,5 +58,6 @@ const LocationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Location = mongoose.model('Location', LocationSchema);
+// Check if model already exists to avoid re-compilation error
+const Location = mongoose.models.Location || mongoose.model('Location', LocationSchema);
 module.exports = Location;
