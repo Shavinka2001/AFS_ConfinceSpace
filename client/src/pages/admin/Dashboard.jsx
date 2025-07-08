@@ -458,7 +458,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token")
     try {
       // Fetch users
-      const res = await fetch("http://localhost:5000/api/users", {
+      const res = await fetch("http://localhost:5001/api/users", {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()
