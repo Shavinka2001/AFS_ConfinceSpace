@@ -25,7 +25,8 @@ app.use(cors({
     origin: [
         process.env.CORS_ORIGIN || 'http://localhost:5173',
         'http://4.236.138.4',
-        'http://localhost:8080'
+        'http://localhost:8080',
+        'http://4.236.138.4'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
