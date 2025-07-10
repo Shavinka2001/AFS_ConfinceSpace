@@ -1,13 +1,28 @@
-# Build stage
-FROM node:20-alpine AS build
+# Dockerfile for React client application
+
+# Use Node.js 18 Alpine as base image
+FROM node:18-alpine
+
+# Set working directory
 WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
-RUN npm install
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
 COPY . .
+
+# Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+# Install serve to run the application
+RUN npm install -g serve
+
+# Expose port 80
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"] 
+
+# Start the application
+CMD ["serve", "-s", "dist", "-l", "80"] 

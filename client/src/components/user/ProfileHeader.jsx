@@ -125,7 +125,7 @@ const ProfileHeader = ({ user, onProfileUpdate }) => {
                         </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                    {/* <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-[#0E1530] rounded-xl flex items-center justify-center">
                                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@ const ProfileHeader = ({ user, onProfileUpdate }) => {
                                 <p className="text-xl font-bold text-gray-900">42</p>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

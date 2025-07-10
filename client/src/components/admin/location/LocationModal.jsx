@@ -124,7 +124,7 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
-                    placeholder="e.g. Main Building, Warehouse A"
+                    placeholder="e.g. Warehouse"
                   />
                 </div>
                 
@@ -156,65 +156,6 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
                   placeholder="Brief description of this location, facilities, or special considerations"
                 ></textarea>
               </div>
-            </div>
-
-            {/* Coordinates Section */}
-            <div className="bg-gray-50 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-[#0E1530] rounded-xl flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900">Coordinates</h3>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Latitude *
-                  </label>
-                  <input
-                    type="number"
-                    name="latitude"
-                    value={formData.latitude || ''}
-                    onChange={handleChange}
-                    required
-                    step="0.000001"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
-                    placeholder="e.g. 41.40338"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Longitude *
-                  </label>
-                  <input
-                    type="number"
-                    name="longitude"
-                    value={formData.longitude || ''}
-                    onChange={handleChange}
-                    required
-                    step="0.000001"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
-                    placeholder="e.g. 2.17403"
-                  />
-                </div>
-              </div>
-
-              {formData.latitude && formData.longitude && (
-                <div className="mt-4 p-4 bg-[#0E1530]/5 border border-[#0E1530]/10 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-[#0E1530]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-sm font-semibold text-[#0E1530]">
-                      Selected coordinates: {Number(formData.latitude).toFixed(6)}, {Number(formData.longitude).toFixed(6)}
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Map Section */}
@@ -280,6 +221,65 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
                   </div>
                 </div>
               </div>
+            </div>
+
+              {/* Coordinates Section */}
+              <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-[#0E1530] rounded-xl flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Coordinates</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Latitude *
+                  </label>
+                  <input
+                    type="number"
+                    name="latitude"
+                    value={formData.latitude || ''}
+                    onChange={handleChange}
+                    required
+                    step="0.000001"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
+                    placeholder="e.g. 41.40338"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Longitude *
+                  </label>
+                  <input
+                    type="number"
+                    name="longitude"
+                    value={formData.longitude || ''}
+                    onChange={handleChange}
+                    required
+                    step="0.000001"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
+                    placeholder="e.g. 2.17403"
+                  />
+                </div>
+              </div>
+
+              {formData.latitude && formData.longitude && (
+                <div className="mt-4 p-4 bg-[#0E1530]/5 border border-[#0E1530]/10 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[#0E1530]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm font-semibold text-[#0E1530]">
+                      Selected coordinates: {Number(formData.latitude).toFixed(6)}, {Number(formData.longitude).toFixed(6)}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer */}
