@@ -488,14 +488,7 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {} }) =>
                         {order.uniqueId ? order.uniqueId.slice(-2) : order._id?.slice(-2)}
                       </span>
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-gray-900">
-                        {searchParams?.id ? 
-                          highlightMatch(order.uniqueId || order._id?.slice(-4).padStart(4, '0'), searchParams.id) : 
-                          (order.uniqueId || order._id?.slice(-4).padStart(4, '0'))
-                        }
-                      </div>
-                    </div>
+                    
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

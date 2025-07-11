@@ -39,11 +39,7 @@ const PersonalInformation = ({ user }) => {
                                     className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all read-only:bg-gray-50/80"
                                     readOnly
                                 />
-                                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </div>
+                              
                             </div>
                         </div>
                         
@@ -63,11 +59,7 @@ const PersonalInformation = ({ user }) => {
                                     className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all read-only:bg-gray-50/80"
                                     readOnly
                                 />
-                                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </div>
+                               
                             </div>
                         </div>
                         
@@ -87,11 +79,7 @@ const PersonalInformation = ({ user }) => {
                                     className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all read-only:bg-gray-50/80"
                                     readOnly
                                 />
-                                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </div>
+                               
                             </div>
                         </div>
                     </div>
@@ -114,11 +102,7 @@ const PersonalInformation = ({ user }) => {
                                     className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all read-only:bg-gray-50/80"
                                     readOnly
                                 />
-                                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </div>
+                               
                             </div>
                         </div>
                         
@@ -163,11 +147,7 @@ const PersonalInformation = ({ user }) => {
                                     className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all read-only:bg-gray-50/80"
                                     readOnly
                                 />
-                                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>

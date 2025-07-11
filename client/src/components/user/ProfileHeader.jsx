@@ -69,19 +69,7 @@ const ProfileHeader = ({ user, onProfileUpdate }) => {
                         </h2>
                         <p className="text-gray-200 text-lg mb-4">Technician</p>
                         
-                        {/* Status Badges */}
-                        <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-6">
-                            <span className="inline-flex items-center px-4 py-2 rounded-2xl text-sm font-semibold bg-green-500/20 text-green-100 border border-green-400/30">
-                                <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
-                                Active
-                            </span>
-                            <span className="inline-flex items-center px-4 py-2 rounded-2xl text-sm font-semibold bg-blue-500/20 text-blue-100 border border-blue-400/30">
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Available
-                            </span>
-                        </div>
+                       
 
                         {/* Action Button */}
                         <button
