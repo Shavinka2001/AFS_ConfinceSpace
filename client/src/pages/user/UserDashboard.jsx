@@ -664,16 +664,7 @@ function TechnicianDashboard() {
                                                                 </svg>
                                                                 <span className="text-sm font-medium">{location.address || 'No address provided'}</span>
                                                             </div>
-                                                            <div className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-xl">
-                                                                <svg className="h-5 w-5 mr-3 text-[#0E1530]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                                                                </svg>
-                                                                <span className="text-sm font-medium">
-                                                                    {location.latitude
-                                                                        ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
-                                                                        : 'No coordinates'}
-                                                                </span>
-                                                            </div>
+                                                           
                                                         </div>
                                                         
                                                         {location.description && (

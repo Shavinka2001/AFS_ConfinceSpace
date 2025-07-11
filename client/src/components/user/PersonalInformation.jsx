@@ -96,13 +96,16 @@ const PersonalInformation = ({ user }) => {
                                 Phone Number
                             </label>
                             <div className="relative">
-                                <input
-                                    type="tel"
-                                    value={user.phone || 'Not provided'}
-                                    className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all read-only:bg-gray-50/80"
-                                    readOnly
-                                />
-                               
+                                <div className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all read-only:bg-gray-50/80">
+                                    {user.phone ? (
+                                        <span>
+                                            <span className="font-bold">+1</span>
+                                            <span className="ml-2">{user.phone.replace(/^\+?1?/, '').replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}</span>
+                                        </span>
+                                    ) : (
+                                        <span>Not provided</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                         
