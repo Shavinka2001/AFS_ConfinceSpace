@@ -455,15 +455,29 @@ export default function Dashboard() {
   // Define fetchData function outside useEffect to make it reusable
   const fetchData = async () => {
     setLoading(true)
-    const token = localStorage.getItem("token")
+    let token = localStorage.getItem("token") || sessionStorage.getItem("token")
+    token = token?.replace(/^"|"$/g, '') // Clean the token from quotes
+    
     try {
-      // Fetch users
-      const res = await fetch("http://localhost:5001/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
-      const userArray = Array.isArray(data) ? data : []
-      setUsers(userArray)
+      // Fetch users - using the correct endpoint
+      try {
+        const res = await fetch("http://localhost:5001/api/auth/", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        
+        if (!res.ok) {
+          console.error('Failed to fetch users:', res.status, res.statusText)
+          throw new Error(`HTTP error! status: ${res.status}`)
+        }
+        
+        const data = await res.json()
+        const userArray = Array.isArray(data) ? data : []
+        console.log('Fetched users:', userArray.length, 'users')
+        setUsers(userArray)
+      } catch (userError) {
+        console.error('Error fetching users:', userError)
+        setUsers([]) // Set empty array on error
+      }
       
       // Fetch work orders
       setOrderLoading(true)
@@ -534,6 +548,7 @@ export default function Dashboard() {
       ])
     } catch (error) {
       console.error("Error fetching data:", error)
+      // Set empty arrays for failed fetches to avoid crashes
       setUsers([])
       setWorkOrders([])
       setOrderLoading(false)
