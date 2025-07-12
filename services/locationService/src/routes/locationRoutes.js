@@ -10,6 +10,7 @@ router.use(protect);
 // Routes accessible to all authenticated users
 router.get('/', locationController.getAllLocations);
 router.get('/assigned/me', locationController.getAssignedLocations); // Must be before /:id to avoid conflicts
+router.get('/previous/me', locationController.getPreviousAssignments); // Get previous assignments for technician
 router.get('/:id', locationController.getLocationById);
 
 // Building routes (accessible to all authenticated users)

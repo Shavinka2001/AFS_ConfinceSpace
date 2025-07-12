@@ -192,3 +192,21 @@ export const detachTechnicianFromLocation = async (locationId) => {
     throw { message: errorMessage, originalError: error };
   }
 };
+
+// Get previously assigned locations for the logged-in technician
+export const getPreviousAssignments = async (page = 1, limit = 10) => {
+  try {
+    const response = await api.get('/previous/me', {
+      headers: authHeader(),
+      params: { page, limit }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error getting previous assignments:', error);
+    const errorMessage = error.response?.data?.message || 
+                         error.response?.data?.error || 
+                         error.message || 
+                         'Error retrieving previous assignments';
+    throw { message: errorMessage, originalError: error };
+  }
+};

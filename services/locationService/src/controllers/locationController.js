@@ -1,4 +1,5 @@
 const Location = require('../models/Location');
+const PreviousLocationAssignment = require('../models/PreviousLocationAssignment');
 const { StatusCodes } = require('http-status-codes');
 const axios = require('axios');
 
@@ -273,6 +274,62 @@ exports.assignTechnicians = async (req, res) => {
           success: false, 
           message: 'You are not assigned to this location' 
         });
+      }
+      
+      // Get assignment date from Auth service to calculate work duration
+      let assignedDate = new Date();
+      let totalWorkOrders = 0;
+      
+      try {
+        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
+        const userResponse = await axios.get(`${authServiceUrl}/api/auth/user/${userId}`, {
+          headers: { 'Authorization': req.headers.authorization }
+        });
+        
+        // Try to get work orders count for this location
+        try {
+          const inventoryServiceUrl = process.env.INVENTORY_SERVICE_URL || 'http://localhost:5003';
+          const ordersResponse = await axios.get(`${inventoryServiceUrl}/api/workorders/location/${locationId}`, {
+            headers: { 'Authorization': req.headers.authorization }
+          });
+          
+          if (ordersResponse.data && ordersResponse.data.workOrders) {
+            totalWorkOrders = ordersResponse.data.workOrders.filter(order => 
+              order.technicianId === userId
+            ).length;
+          }
+        } catch (orderError) {
+          console.warn('Could not fetch work orders count:', orderError.message);
+        }
+        
+      } catch (error) {
+        console.warn('Could not fetch user assignment date:', error.message);
+      }
+      
+      // Create previous assignment record
+      try {
+        const workDuration = Date.now() - assignedDate.getTime();
+        
+        await PreviousLocationAssignment.create({
+          technicianId: userId,
+          locationId: location._id,
+          locationSnapshot: {
+            name: location.name,
+            address: location.address,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            description: location.description || ''
+          },
+          assignedDate,
+          closedDate: new Date(),
+          workDuration,
+          totalWorkOrders
+        });
+        
+        console.log(`Created previous assignment record for technician ${userId} at location ${locationId}`);
+      } catch (assignmentError) {
+        console.error('Error creating previous assignment record:', assignmentError);
+        // Don't fail the entire operation if this fails
       }
       
       // Remove the user from the location's assigned technicians
@@ -594,3 +651,77 @@ exports.getBuildingsForLocation = async (req, res) => {
     });
   }
 };
+
+// Get previous location assignments for the logged-in technician
+exports.getPreviousAssignments = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get previous assignments for the technician, sorted by closed date (most recent first)
+    const previousAssignments = await PreviousLocationAssignment.find({ 
+      technicianId: userId 
+    })
+    .sort({ closedDate: -1 })
+    .skip(skip)
+    .limit(limit);
+
+    // Get total count for pagination
+    const totalCount = await PreviousLocationAssignment.countDocuments({ 
+      technicianId: userId 
+    });
+
+    // Format the assignments for response
+    const formattedAssignments = previousAssignments.map(assignment => ({
+      _id: assignment._id,
+      locationId: assignment.locationId,
+      location: assignment.locationSnapshot,
+      assignedDate: assignment.assignedDate,
+      closedDate: assignment.closedDate,
+      workDuration: assignment.workDuration,
+      totalWorkOrders: assignment.totalWorkOrders,
+      // Calculate human-readable work duration
+      workDurationFormatted: formatDuration(assignment.workDuration)
+    }));
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Previous assignments retrieved successfully',
+      data: formattedAssignments,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPreviousPage: page > 1
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching previous assignments:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || 'Error fetching previous assignments'
+    });
+  }
+};
+
+// Helper function to format duration in milliseconds to human-readable format
+function formatDuration(milliseconds) {
+  const seconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    return `${days} day${days !== 1 ? 's' : ''}, ${hours % 24} hour${hours % 24 !== 1 ? 's' : ''}`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours !== 1 ? 's' : ''}, ${minutes % 60} minute${minutes % 60 !== 1 ? 's' : ''}`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+  } else {
+    return `${seconds} second${seconds !== 1 ? 's' : ''}`;
+  }
+}

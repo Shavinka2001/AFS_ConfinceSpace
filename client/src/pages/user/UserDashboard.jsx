@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import WorkOrderModal from '../../components/admin/confined/WorkOrderModel';
 import WorkOrderTable from '../../components/admin/confined/WorkOrderTable';
 import { createWorkOrder, updateWorkOrder, getWorkOrders, deleteWorkOrder, getWorkOrdersByUserId } from '../../services/workOrderService';
-import { getAssignedLocations, detachTechnicianFromLocation } from '../../services/locationService';
+import { getAssignedLocations, detachTechnicianFromLocation, getPreviousAssignments } from '../../services/locationService';
 import { toast } from 'react-toastify';
 import ProfileHeader from '../../components/user/ProfileHeader';
 import PersonalInformation from '../../components/user/PersonalInformation';
@@ -78,6 +78,9 @@ function TechnicianDashboard() {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [assignedLocations, setAssignedLocations] = useState([]);
     const [loadingLocations, setLoadingLocations] = useState(false);
+    const [previousAssignments, setPreviousAssignments] = useState([]);
+    const [loadingPreviousAssignments, setLoadingPreviousAssignments] = useState(false);
+    const [previousAssignmentsPagination, setPreviousAssignmentsPagination] = useState({});
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
     
@@ -106,6 +109,10 @@ function TechnicianDashboard() {
                 }
                 // Fetch the user's assigned locations when the component mounts
                 fetchAssignedLocations();
+                // Fetch previous assignments when dashboard loads
+                if (activeTab === 'dashboard') {
+                    fetchPreviousAssignments();
+                }
             } catch (error) {
                 console.error("Error parsing user data:", error);
                 navigate('/login');
@@ -180,6 +187,29 @@ function TechnicianDashboard() {
         }
     };
 
+    // New function to fetch previous assignments
+    const fetchPreviousAssignments = async (page = 1, limit = 5) => {
+        try {
+            setLoadingPreviousAssignments(true);
+            const response = await getPreviousAssignments(page, limit);
+            console.log('Previous assignments response:', response);
+            if (response && response.data) {
+                setPreviousAssignments(response.data);
+                setPreviousAssignmentsPagination(response.pagination || {});
+            } else {
+                setPreviousAssignments([]);
+                setPreviousAssignmentsPagination({});
+            }
+        } catch (error) {
+            console.error('Error fetching previous assignments:', error);
+            toast.error('Failed to load your previous assignments');
+            setPreviousAssignments([]);
+            setPreviousAssignmentsPagination({});
+        } finally {
+            setLoadingPreviousAssignments(false);
+        }
+    };
+
     // State to track which location is being closed and confirm modal state
     const [closingLocationId, setClosingLocationId] = useState(null);
     const [confirmModal, setConfirmModal] = useState({
@@ -210,7 +240,9 @@ function TechnicianDashboard() {
             await detachTechnicianFromLocation(locationId);
             toast.success("Work closed successfully. You have been unassigned from this location.");
             
+            // Fetch both assigned locations and previous assignments to update the UI
             await fetchAssignedLocations();
+            await fetchPreviousAssignments();
         } catch (error) {
             console.error("Error closing work:", error);
             toast.error(error.message || "Failed to close work. Please try again.");
@@ -278,6 +310,17 @@ function TechnicianDashboard() {
     // Handle cancel delete work order
     const handleCancelDeleteWorkOrder = () => {
         setDeleteConfirmModal({ isOpen: false, title: '', message: '', orderId: null });
+    };
+
+    // Helper function to get currently assigned location names
+    const getCurrentlyAssignedLocationNames = () => {
+        return assignedLocations.map(location => location.name || location);
+    };
+
+    // Helper function to check if a work order is editable
+    const isWorkOrderEditable = (order) => {
+        const currentlyAssignedNames = getCurrentlyAssignedLocationNames();
+        return currentlyAssignedNames.includes(order.confinedSpaceNameOrId);
     };
 
     // State to prevent duplicate form submissions
@@ -620,7 +663,7 @@ function TechnicianDashboard() {
                                     <div className="w-20 h-20 bg-[#0E1530] rounded-3xl flex items-center justify-center mx-auto mb-6">
                                         <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 018 0z" />
                                         </svg>
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">No locations assigned</h3>
@@ -716,6 +759,168 @@ function TechnicianDashboard() {
                                     ))}
                                 </div>
                             )}
+
+                            {/* Previous Assignments Section */}
+                            <div className="mt-12">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                                    <div>
+                                        <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">Previous Work Assignments</h2>
+                                        <p className="text-gray-600 mt-1">Your completed work history and achievements</p>
+                                    </div>
+                                    {previousAssignments.length > 0 && (
+                                        <div className="flex items-center gap-3">
+                                            <div className="text-sm text-gray-500">
+                                                Total completed: <span className="font-semibold text-[#0E1530]">{previousAssignmentsPagination.totalItems || previousAssignments.length}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {loadingPreviousAssignments ? (
+                                    <div className="flex justify-center items-center py-16">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#0E1530] border-t-transparent"></div>
+                                            <p className="text-gray-600 font-medium">Loading your work history...</p>
+                                        </div>
+                                    </div>
+                                ) : previousAssignments.length === 0 ? (
+                                    <div className="bg-white rounded-3xl shadow-lg p-8 text-center border border-gray-100">
+                                        <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">No completed assignments yet</h3>
+                                        <p className="text-gray-600 mb-1">Your completed work assignments will appear here</p>
+                                        <p className="text-sm text-gray-500">Start working on assigned locations to build your work history</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-6">
+                                        {previousAssignments.map((assignment, index) => (
+                                            <div
+                                                key={assignment._id}
+                                                className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group"
+                                            >
+                                                <div className="flex flex-col lg:flex-row">
+                                                    {/* Map Section */}
+                                                    <div className="lg:w-2/5 w-full min-h-[200px] bg-gray-50 relative">
+                                                        <LocationMapView location={assignment.location} height="200px" />
+                                                        {/* Completed Badge */}
+                                                        <div className="absolute top-4 right-4">
+                                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
+                                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                                Completed
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Info Section */}
+                                                    <div className="flex-1 p-6 lg:p-8">
+                                                        <div className="flex items-start justify-between gap-4 mb-4">
+                                                            <div>
+                                                                <h3 className="text-xl lg:text-2xl font-bold text-gray-900 group-hover:text-[#0E1530] transition-colors">
+                                                                    {assignment.location.name}
+                                                                </h3>
+                                                                <p className="text-gray-600 mt-1 flex items-center">
+                                                                    <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                                    </svg>
+                                                                    {assignment.location.address || 'No address provided'}
+                                                                </p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#0E1530]/10 text-[#0E1530] border border-[#0E1530]/20">
+                                                                    #{index + 1}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                      
+                                                       
+
+
+                                                        {/* Assignment Timeline */}
+                                                        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+                                                            <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center">
+                                                                <svg className="w-4 h-4 mr-2 text-[#0E1530]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                Assignment Timeline
+                                                            </h4>
+                                                            <div className="flex items-center justify-between text-sm">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                                                    <span className="text-gray-600">
+                                                                        <span className="font-medium">Started:</span> {new Date(assignment.assignedDate).toLocaleDateString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="hidden sm:block w-16 h-px bg-gray-300 relative">
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-red-500"></div>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                                                    <span className="text-gray-600">
+                                                                        <span className="font-medium">Completed:</span> {new Date(assignment.closedDate).toLocaleDateString()}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {assignment.location.description && (
+                                                            <div className="mt-4 p-4 bg-[#0E1530]/5 rounded-2xl border border-[#0E1530]/10">
+                                                                <h4 className="text-sm font-bold text-[#0E1530] mb-2">Location Description:</h4>
+                                                                <p className="text-sm text-gray-700">{assignment.location.description}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        {/* Pagination */}
+                                        {previousAssignmentsPagination.totalPages > 1 && (
+                                            <div className="flex justify-center items-center gap-4 mt-8">
+                                                <button
+                                                    onClick={() => fetchPreviousAssignments(previousAssignmentsPagination.currentPage - 1)}
+                                                    disabled={!previousAssignmentsPagination.hasPreviousPage}
+                                                    className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    Previous
+                                                </button>
+                                                
+                                                <div className="flex items-center gap-2">
+                                                    {Array.from({ length: Math.min(5, previousAssignmentsPagination.totalPages) }, (_, i) => {
+                                                        const page = i + 1;
+                                                        return (
+                                                            <button
+                                                                key={page}
+                                                                onClick={() => fetchPreviousAssignments(page)}
+                                                                className={`w-10 h-10 text-sm font-medium rounded-xl transition-colors ${
+                                                                    page === previousAssignmentsPagination.currentPage
+                                                                        ? 'bg-[#0E1530] text-white'
+                                                                        : 'text-gray-600 bg-white border border-gray-300 hover:bg-gray-50'
+                                                                }`}
+                                                            >
+                                                                {page}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                <button
+                                                    onClick={() => fetchPreviousAssignments(previousAssignmentsPagination.currentPage + 1)}
+                                                    disabled={!previousAssignmentsPagination.hasNextPage}
+                                                    className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    Next
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -762,25 +967,25 @@ function TechnicianDashboard() {
                                     orders={workOrders}
                                     onEdit={handleEditWorkOrder}
                                     onDelete={handleDeleteWorkOrder}
+                                    isWorkOrderEditable={isWorkOrderEditable}
                                 />
                             )}
                         </div>
                     )}
 
                     {activeTab === 'profile' && (
-                        <div className="space-y-8">
-                            <ProfileHeader 
-                                user={user} 
-                                onProfileUpdate={() => setShowUpdateForm(true)} 
-                            />
-                            
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                <div className="lg:col-span-2">
-                                    <PersonalInformation user={user} />
+                            <div className="space-y-8">
+                                <ProfileHeader 
+                                    user={user} 
+                                    onProfileUpdate={() => setShowUpdateForm(true)} 
+                                />
+                                
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    <div className="lg:col-span-2">
+                                        <PersonalInformation user={user} />
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
+                            </div>                    )}
                 </main>
             </div>
 
