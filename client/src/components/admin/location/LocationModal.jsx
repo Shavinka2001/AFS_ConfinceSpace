@@ -12,6 +12,8 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
     longitude: null
   });
   const [loading, setLoading] = useState(false);
+  const [geocoder, setGeocoder] = useState(null);
+  const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
 
   // Initialize form data when editing an existing location
   useEffect(() => {
@@ -26,12 +28,63 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
     }
   }, [location]);
 
+  // Initialize geocoder when component mounts
+  useEffect(() => {
+    if (window.google && window.google.maps) {
+      setGeocoder(new window.google.maps.Geocoder());
+    } else {
+      const checkGoogleMaps = setInterval(() => {
+        if (window.google && window.google.maps) {
+          setGeocoder(new window.google.maps.Geocoder());
+          clearInterval(checkGoogleMaps);
+        }
+      }, 500);
+      
+      return () => clearInterval(checkGoogleMaps);
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  // Function to geocode address and show it on map
+  const handleShowAddressOnMap = async () => {
+    if (!formData.address.trim()) {
+      toast.warning('Please enter an address first');
+      return;
+    }
+
+    if (!geocoder) {
+      toast.error('Maps service not yet initialized. Please try again in a moment.');
+      return;
+    }
+
+    setIsGeocodingAddress(true);
+
+    geocoder.geocode({ address: formData.address }, (results, status) => {
+      setIsGeocodingAddress(false);
+      
+      if (status === 'OK' && results[0]) {
+        const location = results[0].geometry.location;
+        const formattedAddress = results[0].formatted_address;
+        
+        setFormData(prev => ({
+          ...prev,
+          latitude: location.lat(),
+          longitude: location.lng(),
+          address: formattedAddress // Update with formatted address
+        }));
+        
+        toast.success(`Address found and shown on map: ${formattedAddress}`);
+      } else {
+        toast.error(`Could not find location for address: ${formData.address}`);
+      }
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -132,14 +185,41 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
                     Address *
                   </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
-                    placeholder="e.g. 123 Main Street, City, State"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0E1530] focus:border-[#0E1530] transition-all"
+                      placeholder="e.g. 123 Main Street, City, State"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleShowAddressOnMap}
+                      disabled={!formData.address.trim() || isGeocodingAddress}
+                      className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed whitespace-nowrap"
+                      title="Show this address on the map"
+                    >
+                      {isGeocodingAddress ? (
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          <span className="hidden sm:inline">Finding...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="hidden sm:inline">Show on Map</span>
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter an address and click "Show on Map" to locate it automatically
+                  </p>
                 </div>
               </div>
 
@@ -172,7 +252,7 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Search Location *
+                    Search Address *
                   </label>
                   <LocationSearchBar 
                     onLocationFound={(coords) => {
@@ -214,9 +294,26 @@ const LocationModal = ({ isOpen, onClose, onSubmit, location, isEdit, mapRef }) 
                     </svg>
                     <div>
                       <p className="text-sm font-medium text-blue-800 mb-1">Location Selection</p>
-                      <p className="text-sm text-blue-700">
-                        {formData.address || 'No address selected yet. Search above or click on the map to select a location.'}
-                      </p>
+                      {formData.address ? (
+                        <div>
+                          <p className="text-sm text-blue-700 mb-1">
+                            <strong>Address:</strong> {formData.address}
+                          </p>
+                          {formData.latitude && formData.longitude ? (
+                            <p className="text-sm text-green-700">
+                              ✓ Location found on map: {Number(formData.latitude).toFixed(6)}, {Number(formData.longitude).toFixed(6)}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-amber-700">
+                              ⚠ Address entered but not shown on map yet. Click "Show on Map" above or select location on map below.
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-blue-700">
+                          No address selected yet. Enter an address above, search, or click on the map to select a location.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
