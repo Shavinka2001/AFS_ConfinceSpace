@@ -4,6 +4,8 @@ import autoTable from "jspdf-autotable";
 import { toast } from 'react-toastify';
 
 const SORT_OPTIONS = [
+  { value: "id_asc", label: "Order ID (Ascending)" },
+  { value: "id_desc", label: "Order ID (Descending)" },
   { value: "date_desc", label: "Date (Newest First)" },
   { value: "date_asc", label: "Date (Oldest First)" },
   { value: "name_asc", label: "Space Name (A-Z)" },
@@ -14,13 +16,27 @@ const SORT_OPTIONS = [
 
 const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {}, isWorkOrderEditable }) => {
   const [selectedImage, setSelectedImage] = useState(null);
-  const [sortBy, setSortBy] = useState("date_desc");
+  const [sortBy, setSortBy] = useState("id_asc");
 
   // Sorting logic
   const getSortedOrders = () => {
     if (!orders) return [];
     const sorted = [...orders];
     switch (sortBy) {
+      case "id_asc":
+        sorted.sort((a, b) => {
+          const aId = a.uniqueId || (a._id?.slice(-4).padStart(4, '0') || '');
+          const bId = b.uniqueId || (b._id?.slice(-4).padStart(4, '0') || '');
+          return aId.localeCompare(bId);
+        });
+        break;
+      case "id_desc":
+        sorted.sort((a, b) => {
+          const aId = a.uniqueId || (a._id?.slice(-4).padStart(4, '0') || '');
+          const bId = b.uniqueId || (b._id?.slice(-4).padStart(4, '0') || '');
+          return bId.localeCompare(aId);
+        });
+        break;
       case "date_asc":
         sorted.sort((a, b) => (a.dateOfSurvey || "").localeCompare(b.dateOfSurvey || ""));
         break;
@@ -92,7 +108,7 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {}, isWo
       // Add uniqueId to Form No if available
       doc.text(
         "Form No: CS-" +
-        (order.uniqueId ? order.uniqueId : (order._id?.slice(-6) || 'N/A')),
+        (order.uniqueId || (order._id?.slice(-4).padStart(4, '0') || 'N/A')),
         14,
         25
       );
@@ -489,12 +505,11 @@ const WorkOrderTable = ({ orders = [], onEdit, onDelete, searchParams = {}, isWo
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-xs font-bold">
-                        {order.uniqueId ? order.uniqueId.slice(-2) : order._id?.slice(-2)}
+                    <div className="min-w-[40px] h-8 bg-black rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-xs font-bold px-2">
+                        {order.uniqueId || (order._id?.slice(-4).padStart(4, '0'))}
                       </span>
                     </div>
-                    
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

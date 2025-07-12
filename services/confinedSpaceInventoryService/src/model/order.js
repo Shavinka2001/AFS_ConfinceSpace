@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Counter = require('./counter');
 
 const OrderSchema = new mongoose.Schema({
   userId: {
@@ -34,6 +35,32 @@ const OrderSchema = new mongoose.Schema({
   numberOfEntryPoints: { type: Number },
   notes: { type: String },
   pictures: { type: [String] }
+});
+
+// Pre-save hook to generate a formatted sequential ID (0001, 0002, etc.)
+OrderSchema.pre('save', async function(next) {
+  const doc = this;
+  
+  // Only generate uniqueId if it's not already set
+  if (!doc.uniqueId) {
+    try {
+      // Find and update the counter document, or create if it doesn't exist
+      const counter = await Counter.findByIdAndUpdate(
+        { _id: 'orderId' },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+      );
+      
+      // Format the sequence number to have leading zeros (4 digits: 0001, 0002, etc.)
+      doc.uniqueId = counter.seq.toString().padStart(4, '0');
+      next();
+    } catch (error) {
+      console.error('Error generating uniqueId:', error);
+      next(error);
+    }
+  } else {
+    next();
+  }
 });
 
 module.exports = mongoose.model('Order', OrderSchema);

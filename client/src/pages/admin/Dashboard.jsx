@@ -96,13 +96,21 @@ const UserTable = ({ users, loading }) => {
 // Location Card Component for Dashboard
 const LocationCard = ({ location, orders, onViewOrder, onEditOrder, onAddOrder, onDeleteOrder, downloadSinglePDF }) => {
   const [searchTerm, setSearchTerm] = useState('');  // Filter orders based on search term - only search by sequence number
+  
+  // Sort orders by order ID and then filter if search term exists
+  const sortedOrders = [...orders].sort((a, b) => {
+    const aId = a.uniqueId || (a._id?.slice(-4).padStart(4, '0') || '');
+    const bId = b.uniqueId || (b._id?.slice(-4).padStart(4, '0') || '');
+    return aId.localeCompare(bId);
+  });
+  
   const filteredOrders = searchTerm.trim() ? 
-    orders.filter((order, index) => {
+    sortedOrders.filter((order, index) => {
       const sequenceNumber = String(index + 1);
       
       // Search only by exact sequence number match
       return sequenceNumber === searchTerm;
-    }) : orders;
+    }) : sortedOrders;
 
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transition-all hover:shadow-2xl h-[320px] flex flex-col w-full relative">

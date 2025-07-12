@@ -26,11 +26,11 @@ const WorkOrderSearch = ({ search, onChange, onSearch, onClear }) => {
               id="id"
               value={search.id || ''}
               onChange={onChange}
-              placeholder="Enter order ID..."
+              placeholder="Enter order ID (e.g., 0001)..."
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black transition-all bg-white text-gray-900 placeholder-gray-400"
             />
             <p className="text-xs text-gray-500">
-              Search by full or partial order ID
+              Search by full or partial order ID (format: 0001, 0002, etc.)
             </p>
           </div>
 

@@ -77,7 +77,8 @@ exports.createOrder = async (req, res) => {
 // Get all orders (admin)
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find();
+    // Sort by uniqueId if it exists, otherwise by _id
+    const orders = await Order.find().sort({ uniqueId: 1, _id: 1 });
     // Convert Azure URLs to local proxy URLs for frontend consumption
     const ordersWithProxyUrls = orders.map(order => ({
       ...order.toObject(),
@@ -92,7 +93,8 @@ exports.getOrders = async (req, res) => {
 // Get orders by userId
 exports.getOrdersByUserId = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.params.userId });
+    // Sort by uniqueId if it exists, otherwise by _id
+    const orders = await Order.find({ userId: req.params.userId }).sort({ uniqueId: 1, _id: 1 });
     // Convert Azure URLs to local proxy URLs for frontend consumption
     const ordersWithProxyUrls = orders.map(order => ({
       ...order.toObject(),
@@ -107,7 +109,7 @@ exports.getOrdersByUserId = async (req, res) => {
 // Get orders for current user
 exports.getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user.id });
+    const orders = await Order.find({ userId: req.user.id }).sort({ uniqueId: 1, _id: 1 });
     // Convert Azure URLs to local proxy URLs for frontend consumption
     const ordersWithProxyUrls = orders.map(order => ({
       ...order.toObject(),
@@ -149,7 +151,7 @@ exports.searchOrders = async (req, res) => {
       query.dateOfSurvey = { $gte: start, $lt: end };
     }
 
-    const orders = await Order.find(query).sort({ dateOfSurvey: -1 });
+    const orders = await Order.find(query).sort({ uniqueId: 1, _id: 1 });
     // Convert Azure URLs to local proxy URLs for frontend consumption
     const ordersWithProxyUrls = orders.map(order => ({
       ...order.toObject(),

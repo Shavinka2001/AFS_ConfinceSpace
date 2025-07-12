@@ -21,12 +21,8 @@ export const createWorkOrder = async (orderData) => {
   try {
     console.log('Creating work order with data:', orderData); // Debug log
     
-    // Remove uniqueId generation from frontend
-    if (orderData.uniqueId) {
-      // If user manually entered a uniqueId, keep it (backend will validate)
-    } else {
-      delete orderData.uniqueId; // Ensure not set, backend will generate
-    }
+    // Always let the backend generate the uniqueId in the required format (0001, 0002, etc.)
+    delete orderData.uniqueId; // Remove any client-side uniqueId to ensure backend generates it
     
     // Create a FormData object for file uploads
     const formData = new FormData();
@@ -125,6 +121,19 @@ export const getWorkOrderById = async (id) => {
 export const updateWorkOrder = async (id, orderData) => {
   try {
     console.log('Updating work order with data:', orderData); // Debug log
+    
+    // Ensure uniqueId is preserved during update (don't overwrite the formatted ID)
+    if (!orderData.uniqueId && id) {
+      // Attempt to fetch the existing order to get its uniqueId
+      try {
+        const existingOrder = await getWorkOrderById(id);
+        if (existingOrder && existingOrder.uniqueId) {
+          orderData.uniqueId = existingOrder.uniqueId;
+        }
+      } catch (fetchError) {
+        console.warn('Could not fetch existing order for uniqueId preservation:', fetchError);
+      }
+    }
 
     const formData = new FormData();
     // Add all regular fields to formData

@@ -66,6 +66,7 @@ const WorkOrderManagementPage = () => {
           // First try to get all orders to ensure we have the full dataset
           getWorkOrders().then(allOrders => {
             // Filter orders that match the ID or uniqueId
+            // Support partial matches on the formatted ID (0001, 0002, etc.)
             const filteredOrders = allOrders.filter(order => 
               (order._id && order._id.toLowerCase().includes(lowerCaseValue)) ||
               (order.uniqueId && order.uniqueId.toLowerCase().includes(lowerCaseValue))
